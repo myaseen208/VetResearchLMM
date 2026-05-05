@@ -1,0 +1,243 @@
+# VetResearchLMM: Linear Mixed Models - An Introduction with Applications in Veterinary Research
+
+## Introduction
+
+**VetResearchLMM** provides datasets and reproducible R examples for
+*Linear Mixed Models: An Introduction with Applications in Veterinary
+Research* by Duchateau, Janssen, and Rowlands.
+
+Current package maintenance includes the School of Mathematical and
+Statistical Sciences, Clemson University.
+
+## Installation
+
+### Stable Version
+
+Install the stable version from
+[CRAN](https://cran.r-project.org/package=VetResearchLMM):
+
+``` r
+
+install.packages("VetResearchLMM")
+```
+
+### Development Version
+
+Install the development version from
+[GitHub](https://github.com/myaseen208/VetResearchLMM):
+
+``` r
+
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
+
+devtools::install_github("myaseen208/VetResearchLMM", build_vignettes = TRUE)
+```
+
+## Example
+
+``` r
+
+data(ex31, package = "VetResearchLMM")
+str(ex31)
+```
+
+Modern examples use
+[`collapse::fmutate()`](https://fastverse.org/collapse/reference/ftransform.html)
+for compact preprocessing, `ggplot2` for figures, optional
+[`report_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/report_mixed_model.md)
+for easystats-style interpretation, and optional
+[`emmeans_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/emmeans_mixed_model.md)
+for estimated marginal means and post hoc comparisons.
+
+``` r
+
+if (requireNamespace("lme4", quietly = TRUE) &&
+    requireNamespace("emmeans", quietly = TRUE)) {
+  data(ex125, package = "VetResearchLMM")
+  fit <- lme4::lmer(Pcv ~ dose * Drug + (1 | Region / Drug), data = ex125)
+  if (requireNamespace("report", quietly = TRUE)) {
+    report::report(fit)
+  }
+  emmeans_mixed_model(fit, ~ dose | Drug, lmer.df = "asymptotic")
+  emmeans_mixed_model(
+    fit,
+    ~ dose | Drug,
+    pairwise = TRUE,
+    lmer.df = "asymptotic"
+  )
+}
+```
+
+## Articles
+
+The package includes Quarto articles covering the package overview,
+mixed model methodology, book example mapping, and ggplot2 plotting
+workflows. These articles are intended for pkgdown and applied users
+working through the book.
+
+## License
+
+This package is free and open source software, licensed under GPL.
+
+# Package index
+
+## Core Methods
+
+- [`VetResearchLMM`](https://myaseen208.com/VetResearchLMM/reference/VetResearchLMM-package.md)
+  [`VetResearchLMM-package`](https://myaseen208.com/VetResearchLMM/reference/VetResearchLMM-package.md)
+  : VetResearchLMM: Linear Mixed Models for Veterinary Research Examples
+
+## Interpretation
+
+- [`report_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/report_mixed_model.md)
+  : Report a Fitted Mixed Model
+
+## Post Hoc Inference
+
+- [`emmeans_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/emmeans_mixed_model.md)
+  : Estimated Marginal Means for a Fitted Mixed Model
+
+## Example Data
+
+- [`ex121`](https://myaseen208.com/VetResearchLMM/reference/ex121.md) :
+
+  ex121 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`ex124`](https://myaseen208.com/VetResearchLMM/reference/ex124.md) :
+
+  ex124 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`ex125`](https://myaseen208.com/VetResearchLMM/reference/ex125.md) :
+
+  ex125 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`ex127`](https://myaseen208.com/VetResearchLMM/reference/ex127.md) :
+
+  ex127 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`ex31`](https://myaseen208.com/VetResearchLMM/reference/ex31.md) :
+
+  ex31 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`ex32`](https://myaseen208.com/VetResearchLMM/reference/ex32.md) :
+
+  ex32 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`ex33`](https://myaseen208.com/VetResearchLMM/reference/ex33.md) :
+
+  ex33 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+## Example Workflows
+
+- [`Examp1.3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp1.3.2.md)
+  :
+
+  Examp1.3.2 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp2.2.1.7`](https://myaseen208.com/VetResearchLMM/reference/Examp2.2.1.7.md)
+  :
+
+  Examp2.2.1.7 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp2.4.2.2`](https://myaseen208.com/VetResearchLMM/reference/Examp2.4.2.2.md)
+  :
+
+  Examp2.4.2.2 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp2.4.3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.4.3.1.md)
+  :
+
+  Examp2.4.3.1 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp2.5.1.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.1.1.md)
+  :
+
+  Examp2.5.1.1 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp2.5.2.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.2.1.md)
+  :
+
+  Examp2.5.2.1 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp2.5.3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.3.1.md)
+  :
+
+  Examp2.5.3.1 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp2.5.4.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.4.1.md)
+  :
+
+  Examp2.5.4.1 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp2.6.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.6.1.md)
+  :
+
+  Examp2.6.1 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp3.1.md)
+  :
+
+  Examp3.1 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp3.2.md)
+  :
+
+  Examp3.2 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+- [`Examp3.3`](https://myaseen208.com/VetResearchLMM/reference/Examp3.3.md)
+  :
+
+  Examp3.3 from Duchateau, L. and Janssen, P. and Rowlands, G. J.
+  (1998).*Linear Mixed Models. An Introduction with applications in
+  Veterinary Research*. International Livestock Research Institute.
+
+# Articles
+
+### Articles
+
+- [Introduction to
+  VetResearchLMM](https://myaseen208.com/VetResearchLMM/articles/vetresearchlmm-introduction.md):
+- [Linear Mixed Model
+  Methodology](https://myaseen208.com/VetResearchLMM/articles/vetresearchlmm-methodology.md):
+- [Book Examples in
+  R](https://myaseen208.com/VetResearchLMM/articles/vetresearchlmm-examples.md):
+- [Plotting the Veterinary
+  Examples](https://myaseen208.com/VetResearchLMM/articles/vetresearchlmm-plotting.md):

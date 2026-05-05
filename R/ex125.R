@@ -1,0 +1,25 @@
+#' @title    ex125 from Duchateau, L. and Janssen, P. and Rowlands, G. J. (1998).\emph{Linear Mixed Models. An Introduction with applications in Veterinary Research}. International Livestock Research Institute.
+#' @name     ex125
+#' @docType  data
+#' @keywords datasets
+#' @usage    data(ex125)
+#' @format A \code{data.frame} with 24 rows and 4 variables:
+#' \describe{
+#'   \item{Region}{Region identifier.}
+#'   \item{Drug}{Drug administered, Berenil or Samorin.}
+#'   \item{dose}{Dose group, high (\code{h}) or low (\code{l}).}
+#'   \item{Pcv}{Packed cell volume response.}
+#' }
+#' @description Packed cell volume response data by region, drug, and dose.
+#' @author \enumerate{
+#'          \item  Muhammad Yaseen (\email{myaseen208@@gmail.com})
+#'          }
+#' @references \enumerate{
+#' \item Duchateau, L. and Janssen, P. and Rowlands, G. J. (1998).\emph{Linear Mixed Models. An Introduction with applications in Veterinary Research}.
+#'              International Livestock Research Institute.
+#'  }
+#' @seealso
+#'    \code{\link{Examp1.3.2}}
+#' @examples
+#' data(ex125)
+NULL

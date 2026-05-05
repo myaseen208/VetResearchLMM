@@ -1,0 +1,68 @@
+url: https://myaseen208.com/VetResearchLMM/
+
+template:
+  bootstrap: 5
+  math-rendering: mathjax
+  bslib:
+    base_font:
+      google: Libertinus Serif
+    heading_font:
+      google: Libertinus Serif
+    code_font:
+      google: JetBrains Mono
+
+navbar:
+  structure:
+    left: [home, reference, articles, news]
+
+  right:
+    - icon: fa-github
+      href: https://github.com/myaseen208/VetResearchLMM
+      aria-label: GitHub repository
+
+    - text: CRAN
+      icon: fa-download
+      href: https://cran.r-project.org/package=VetResearchLMM
+      aria-label: CRAN
+
+    - text: ResearchGate
+      icon: fa-graduation-cap
+      href: https://www.researchgate.net/profile/Muhammad_Yaseen10
+      aria-label: ResearchGate
+
+    - text: Twitter
+      icon: fa-twitter
+      href: https://twitter.com/myaseen208
+      aria-label: Twitter
+
+reference:
+  - title: Core Methods
+    contents:
+      - VetResearchLMM-package
+  - title: Interpretation
+    contents:
+      - report_mixed_model
+  - title: Post Hoc Inference
+    contents:
+      - emmeans_mixed_model
+  - title: Example Data
+    contents:
+      - ex121
+      - ex124
+      - ex125
+      - ex127
+      - ex31
+      - ex32
+      - ex33
+  - title: Example Workflows
+    contents:
+      - starts_with("Examp")
+
+articles:
+  - title: Articles
+    navbar: ~
+    contents:
+      - vetresearchlmm-introduction
+      - vetresearchlmm-methodology
+      - vetresearchlmm-examples
+      - vetresearchlmm-plotting

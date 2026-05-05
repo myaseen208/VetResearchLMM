@@ -1,0 +1,12 @@
+pandoc: 3.8.3
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  vetresearchlmm-examples: vetresearchlmm-examples.html
+  vetresearchlmm-introduction: vetresearchlmm-introduction.html
+  vetresearchlmm-methodology: vetresearchlmm-methodology.html
+  vetresearchlmm-plotting: vetresearchlmm-plotting.html
+last_built: 2026-05-05T05:01Z
+urls:
+  reference: https://myaseen208.com/VetResearchLMM/reference
+  article: https://myaseen208.com/VetResearchLMM/articles
