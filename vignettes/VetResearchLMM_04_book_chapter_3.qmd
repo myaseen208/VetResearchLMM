@@ -1,0 +1,239 @@
+---
+title: "The examples of Chapter 3"
+author: "Muhammad Yaseen"
+date: last-modified
+format:
+  html:
+    self-contained: true
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    highlight-style: pygments
+    code-tools: true
+    html-math-method: mathjax
+vignette: >
+  %\VignetteIndexEntry{The examples of Chapter 3}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+{{< include _VetResearchLMM-macros.txt >}}
+
+```{r setup, include = FALSE}
+# HTML figures are drawn as PNG and kept as WebP: lossless, or lossy at quality 90 when that is less than half the
+# size. The PDF figures stay vector graphics. Any failure of magick (not installed, no WebP, or a broken
+# installation whose system libraries are missing) keeps the PNG
+webp <- function(path) {
+  if (knitr::is_latex_output() || !grepl(pattern = "[.]png$", x = path)) return(path)
+  tryCatch(
+      {
+        if (!requireNamespace("magick", quietly = TRUE) || !isTRUE(magick::magick_config()$webp)) return(path)
+        img <- magick::image_read(path)
+        out <- sub(pattern = "[.]png$", replacement = ".webp", x = path)
+        tmp <- tempfile(fileext = ".webp")
+        magick::image_write(
+            image   = img
+          , path    = out
+          , format  = "webp"
+          , quality = 100
+          , defines = c(`webp:lossless` = "true")
+          )
+        magick::image_write(image = img, path = tmp, format = "webp", quality = 90)
+        if (file.size(tmp) < file.size(out) / 2) file.copy(from = tmp, to = out, overwrite = TRUE)
+        unlink(c(path, tmp))
+        out
+      }
+    , error = function(e) path
+    )
+}
+knitr::opts_chunk$set(collapse = FALSE, comment = "", fig.width = 7, fig.height = 4.2,
+                      dev = if (knitr::is_latex_output()) "cairo_pdf" else "ragg_png", dpi = 96,
+                      fig.process = webp)
+if (requireNamespace("VetResearchLMM", quietly = TRUE)) library(VetResearchLMM) else
+  pkgload::load_all(export_all = FALSE, helpers = FALSE, quiet = TRUE)
+```
+
+
+# Abstract
+
+Chapter 3 of the book applies the mixed model to a designed experiment with a covariate (Example 3.1), to the
+estimation of heritability and breeding values (Example 3.2) and to repeated measures with several covariance
+structures (Example 3.3). The book prints only part of the data of Examples 3.1 and 3.2, so their analyses run but
+cannot reproduce the printed numbers; the complete data of Example 3.3 reproduce every printed number.
+
+```{r ref}
+ref <-
+  vlm_reference(
+      source   = "Example 3"
+    , evaluate = TRUE
+    , level    = 1
+    )
+```
+
+# Example 3.1: doses nested in drug, with a covariate
+
+```{r}
+m1 <-
+  vlm_fit(
+      fixed    = PCV2 ~ drug + drug:dose
+    , data     = ex31
+    , random   = ~ drug:herd
+    , repeated = NULL
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = "satterth"
+    , type     = 3
+    , class    = c("herd", "dose")
+    , bound    = TRUE
+    , control  = list()
+    )
+m1$tests
+vlm_estimate(
+    fit    = m1
+  , L      = list(
+        "Mean Samorin"         = list(Intercept = 1, drug = c(0, 1), "drug:dose" = c(0, 0, 1))
+      , "Berenil 2 doses"      = list("drug:dose" = c(1, -1, 0))
+      , "Ber vs Sam at dose 1" = list(drug = c(1, -1), "drug:dose" = c(1, 0, -1))
+      )
+  , random = NULL
+  , level  = 0.95
+  )
+```
+
+Model 3 lets each treatment have its own slope on the PCV at treatment, and compares the treatments for an animal
+with PCV1 = 18:
+
+```{r}
+m3 <-
+  vlm_fit(
+      fixed    = PCV2 ~ drug + drug:dose + PCV1:drug:dose
+    , data     = ex31
+    , random   = ~ drug:herd
+    , repeated = NULL
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = "kr"
+    , type     = 3
+    , class    = c("herd", "dose")
+    , bound    = TRUE
+    , control  = list()
+    )
+vlm_lsmeans(
+    fit    = m3
+  , specs  = ~ drug:dose
+  , at     = list(PCV1 = 18)
+  , diff   = FALSE
+  , adjust = c("none", "tukey", "bonferroni", "sidak")
+  , level  = 0.95
+  )
+```
+
+# Example 3.2: heritability and sire predictions
+
+```{r}
+f32 <-
+  vlm_fit(
+      fixed    = Ww ~ sex + agew + breed
+    , data     = ex32
+    , random   = ~ breed:sire_id
+    , repeated = NULL
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = "satterth"
+    , type     = 3
+    , class    = "breed"
+    , bound    = TRUE
+    , control  = list()
+    )
+f32$covariance
+vlm_lsmeans(
+    fit    = f32
+  , specs  = ~ breed
+  , at     = NULL
+  , diff   = TRUE
+  , adjust = "tukey"
+  , level  = 0.95
+  )$lsmeans
+```
+
+On this part of the data the sire variance is estimated as zero, so the heritability $h^2 = 4\sigma_s^2/
+(\sigma_s^2 + \sigma^2)$ is zero; with the complete data the book finds 0.49.
+
+# Example 3.3: covariance structures for repeated measures
+
+Model 1 (a random animal effect, equivalently compound symmetry), Model 2 (first-order autoregressive errors) and
+Model 3 (a random intercept and slope per animal):
+
+```{r}
+cs <-
+  vlm_fit(
+      fixed    = PCV ~ breed + breed:time
+    , data     = ex33
+    , random   = NULL
+    , repeated = vlm_repeated(
+          type    = c("vc", "cs", "ar1", "sp_pow", "un")[2]
+        , subject = ~ animal_id:breed
+        , order   = NULL
+        )
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = c("default", "contain", "residual", "betwithin", "satterth", "kr")
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+ar <-
+  vlm_fit(
+      fixed    = PCV ~ breed + breed:time
+    , data     = ex33
+    , random   = NULL
+    , repeated = vlm_repeated(
+          type    = c("vc", "cs", "ar1", "sp_pow", "un")[3]
+        , subject = ~ animal_id:breed
+        , order   = NULL
+        )
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = c("default", "contain", "residual", "betwithin", "satterth", "kr")
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+rc <-
+  vlm_fit(
+      fixed    = PCV ~ breed + breed:time
+    , data     = ex33
+    , random   = vlm_random(
+          effects = ~ 1 + time
+        , subject = ~ animal_id:breed
+        , type    = c("vc", "un")[2]
+        )
+    , repeated = NULL
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = c("default", "contain", "residual", "betwithin", "satterth", "kr")
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+rc$covariance
+cmp <-
+  vlm_compare(
+      CS   = cs
+    , AR1  = ar
+    , RC   = rc
+    , test = TRUE
+    )
+cmp
+plot(cmp)
+```
+
+The book compared Models 1 and 2 only (the restricted log-likelihoods $-391.73$ and $-396.57$ favour compound
+symmetry); the random coefficients model has a much smaller AIC still, as the negative covariance of the intercepts
+and slopes (animals that start higher fall faster) suggests.
+
+```{r}
+knitr::kable(x = ref[, c("source", "quantity", "value", "computed", "agrees")], digits = 4,
+             col.names = c("Source", "Quantity", "Book", "Computed", "Agrees"))
+```

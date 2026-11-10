@@ -1,0 +1,28 @@
+symbol,text,kind,meaning,argument
+"N",N,scalar,"number of observations",data
+"P",P,scalar,"rank of the fixed-effects design matrix",fixed
+"\mathbf{y}",y,vector,"response (observations)",fixed
+"\mathbf{X}",X,matrix,"design matrix of the fixed effects (overparameterised: one column per level)",fixed
+"\boldsymbol{\beta}",beta,vector,"fixed effects",fixed
+"\mathbf{Z}",Z,matrix,"design matrix of the random effects",random
+"\mathbf{u}",u,vector,"random effects",random
+"\mathbf{e}",e,vector,"residual errors",
+"\mathbf{G}",G,matrix,"covariance matrix of the random effects",random
+"\mathbf{R}",R,matrix,"covariance matrix of the residuals",repeated
+"\mathbf{V}",V,matrix,"covariance matrix of the observations: Z G Z' + R",
+"\boldsymbol{\theta}",theta,vector,"covariance parameters (variance components, covariances, correlations)",
+"\mathbf{V}_i",V_i,matrix,"derivative of V with respect to the i-th covariance parameter",
+"\mathbf{P}",P,matrix,"V^-1 - V^-1 X (X' V^-1 X)^- X' V^-1",
+"\mathbf{C}",C,matrix,"(X' V^-1 X)^-: covariance matrix of the fixed-effects solution",
+"\ell_R, \ell",l,function,"restricted and full log-likelihood",method
+"\mathbf{l}, \mathbf{L}",L,vector,"coefficients of an estimate or contrast of fixed effects",L
+"\mathbf{k}",k,vector,"coefficients of random effects in a narrow-space estimate",random
+"\nu",nu,scalar,"denominator degrees of freedom",ddfm
+"\mathbf{A}",A,matrix,"asymptotic covariance matrix of the covariance-parameter estimates",
+"\mathbf{\Phi}_A",Phi_A,matrix,"Kenward-Roger adjusted covariance matrix of the fixed effects",ddfm
+"\sigma^2",sigma2,scalar,"residual variance",
+"\sigma_k^2",sigma2_k,scalar,"variance of the k-th random effect",random
+"\rho",rho,scalar,"correlation of the first-order autoregressive or spatial power structure",repeated
+"\mathrm{E}(MS)",EMS,function,"expected mean square",type
+"d",d,scalar,"number of covariance parameters",
+"s",s,scalar,"number of subjects",repeated

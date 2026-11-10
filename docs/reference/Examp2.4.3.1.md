@@ -1,102 +1,98 @@
-# Examp2.4.3.1 from Duchateau, L. and Janssen, P. and Rowlands, G. J. (1998).*Linear Mixed Models. An Introduction with applications in Veterinary Research*. International Livestock Research Institute.
+# Example 2.4.3.1: best linear unbiased prediction of sire effects
 
-Examp2.4.3.1 is used for inspecting probability distribution and to
-define a plausible process through linear models and generalized linear
-models.
+The random sire model of
+[`ex127`](https://myaseen208.com/VetResearchLMM/reference/ex127.md):
+REML variances 3.685 (sire) and 3.542 (residual), overall mean 13.97,
+and the prediction 3.16 for sire 4, a shrunken version of its mean
+deviation 17.63 - 13.97.
 
 ## References
 
-1.  Duchateau, L. and Janssen, P. and Rowlands, G. J. (1998).*Linear
-    Mixed Models. An Introduction with applications in Veterinary
-    Research*. International Livestock Research Institute.
+Duchateau, L., Janssen, P. and Rowlands, G. J. (1998). *Linear Mixed
+Models. An Introduction with Applications in Veterinary Research*.
+International Livestock Research Institute, Nairobi.
 
 ## See also
 
-[`ex124`](https://myaseen208.com/VetResearchLMM/reference/ex124.md)
+[`vlm_blup`](https://myaseen208.com/VetResearchLMM/reference/vlm_blup.md),
+[`ex127`](https://myaseen208.com/VetResearchLMM/reference/ex127.md)
+
+Other VetResearchLMM examples:
+[`Examp1.3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp1.3.2.md),
+[`Examp2.2.1.7`](https://myaseen208.com/VetResearchLMM/reference/Examp2.2.1.7.md),
+[`Examp2.3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp2.3.2.md),
+[`Examp2.4.2.2`](https://myaseen208.com/VetResearchLMM/reference/Examp2.4.2.2.md),
+[`Examp2.5.1.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.1.1.md),
+[`Examp2.5.2.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.2.1.md),
+[`Examp2.5.3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.3.1.md),
+[`Examp2.5.4.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.4.1.md),
+[`Examp2.6.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.6.1.md),
+[`Examp3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp3.1.md),
+[`Examp3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp3.2.md),
+[`Examp3.3`](https://myaseen208.com/VetResearchLMM/reference/Examp3.3.md)
 
 ## Author
 
-1.  Muhammad Yaseen (<myaseen208@gmail.com>)
+Muhammad Yaseen (<myaseen208@gmail.com>)
 
 ## Examples
 
 ``` r
-#-------------------------------------------------------------
-## Example 2.4.3.1 p-66
-#-------------------------------------------------------------
- # PROC MIXED DATA=ex127;
- # CLASS sire;
- # MODEL ww=;
- # RANDOM sire/solution;
- # RUN;
- 
-library(lme4)
-str(ex127)
-#> 'data.frame':    43 obs. of  2 variables:
-#>  $ sire: int  1 1 1 2 2 2 2 2 2 2 ...
-#>  $ Ww  : num  11.1 10.8 11.3 15.9 13 12.6 14.6 13.6 12.5 15.7 ...
-fm2.8 <- 
-  lme4::lmer(
-         formula    = Ww~(1|sire)
-       , data       = ex127
-       , REML       = TRUE
-       , control    = lmerControl()
-       , start      = NULL
-       , verbose    = 0L
-    #  , subset
-    #  , weights
-    #  , na.action
-    #  , offset
-       , contrasts  = NULL
-       , devFunOnly = FALSE
-    #  , ...
-       )  
-if (requireNamespace("report", quietly = TRUE)) {
-  fm2.8 |>
-    report::report()
+# SAS program of the book (Appendix B):
+#   proc mixed data=ex127;
+#     class sire;
+#     model ww = ;
+#     random sire / solution;
+#   run;
+
+fs <-
+  vlm_fit(
+      fixed    = Ww ~ 1
+    , data     = ex127
+    , random   = ~ sire
+    , repeated = NULL
+    , method   = "REML"
+    , ddfm     = "default"
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+fs$fixed
+#>         effect  level estimate       se    df        t            p
+#>         <char> <char>    <num>    <num> <num>    <num>        <num>
+#> 1: (Intercept)        13.96863 0.743532     7 18.78685 3.007855e-07
+vlm_blup(
+    fit   = fs
+  , level = 0.95
+  )
+#> Best linear unbiased predictions of the random effects
+#> 
+#> Solution for random effects
+#>  effect level estimate     se df        t       p   lower   upper
+#>    sire     1   -2.198  1.101 35   -1.997 0.05364  -4.432 0.03641
+#>    sire     2 -0.03189 0.8983 35 -0.03550 0.97188  -1.855   1.792
+#>    sire     3   -1.743  1.101 35   -1.584 0.12216  -3.978  0.4908
+#>    sire     4    3.159 0.9589 35    3.294 0.00227   1.212   5.106
+#>    sire     5   0.8692 0.9340 35   0.9306 0.35842  -1.027   2.765
+#>    sire     6  -0.8628 0.9915 35  -0.8702 0.39013  -2.876   1.150
+#>    sire     7    1.356  1.036 35    1.309 0.19922 -0.7475   3.459
+#>    sire     8  -0.5476 0.9589 35  -0.5710 0.57162  -2.494   1.399
+#> 
+#> Sources: Duchateau, Janssen and Rowlands (1998); Henderson (1975). Full
+#> references: vlm_cite(x).
+
+# the same model with lme4 (optional)
+if (requireNamespace("lme4", quietly = TRUE)) {
+  lm4 <-
+    lme4::lmer(
+        formula = Ww ~ 1 + (1 | sire)
+      , data    = ex127
+      , REML    = TRUE
+      )
+  print(lme4::VarCorr(lm4), comp = "Variance")
 }
-#>  We fitted a constant (intercept-only) linear mixed model (estimated using REML
-#> and nloptwrap optimizer) to predict Ww (formula: Ww ~ 1). The model included
-#> sire as random effect (formula: ~1 | sire). The model's intercept is at 13.97
-#> (95% CI [12.47, 15.47], t(40) = 18.79, p < .001).
-#> 
-#> Standardized parameters were obtained by fitting the model on a standardized
-#> version of the dataset. 95% Confidence Intervals (CIs) and p-values were
-#> computed using a Wald t-distribution approximation.
-summary(fm2.8)
-#> Linear mixed model fit by REML ['lmerMod']
-#> Formula: Ww ~ (1 | sire)
-#>    Data: ex127
-#> 
-#> REML criterion at convergence: 188.9
-#> 
-#> Scaled residuals: 
-#>     Min      1Q  Median      3Q     Max 
-#> -1.5024 -0.7106 -0.2259  0.8414  1.9459 
-#> 
-#> Random effects:
-#>  Groups   Name        Variance Std.Dev.
-#>  sire     (Intercept) 3.686    1.920   
-#>  Residual             3.542    1.882   
-#> Number of obs: 43, groups:  sire, 8
-#> 
-#> Fixed effects:
-#>             Estimate Std. Error t value
-#> (Intercept)  13.9686     0.7435   18.79
-lme4::fixef(fm2.8)
-#> (Intercept) 
-#>    13.96863 
-lme4::ranef(fm2.8)
-#> $sire
-#>   (Intercept)
-#> 1  -2.1979037
-#> 2  -0.0318874
-#> 3  -1.7434719
-#> 4   3.1587811
-#> 5   0.8691909
-#> 6  -0.8627975
-#> 7   1.3556763
-#> 8  -0.5475878
-#> 
-#> with conditional variances for “sire” 
+#>  Groups   Name        Variance
+#>  sire     (Intercept) 3.6855  
+#>  Residual             3.5418  
 ```

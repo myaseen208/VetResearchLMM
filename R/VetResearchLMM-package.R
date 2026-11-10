@@ -1,74 +1,37 @@
-#' VetResearchLMM: Linear Mixed Models for Veterinary Research Examples
+#' VetResearchLMM: Linear Mixed Models with Applications in Veterinary Research
 #'
 #' @description
-#' The \pkg{VetResearchLMM} package provides the datasets and reproducible R
-#' examples that accompany Duchateau, Janssen, and Rowlands (1998),
-#' \emph{Linear Mixed Models: An Introduction with Applications in Veterinary
-#' Research}. The package is intended for readers who want to reproduce,
-#' inspect, and adapt the linear mixed model examples from the book using
-#' current R tooling.
+#' The \pkg{VetResearchLMM} package gives the data sets and every analysis of Duchateau, Janssen and Rowlands (1998),
+#' \emph{Linear Mixed Models. An Introduction with Applications in Veterinary Research}, with its own engine for
+#' linear mixed models. The engine gives the results that the book prints from SAS PROC MIXED and PROC GLM, and
+#' extends them.
 #'
-#' @details
-#' The package focuses on small applied veterinary research examples involving
-#' fixed effects, random effects, variance components, nested designs,
-#' repeated measurements, and basic hypothesis tests for linear mixed models.
-#' The package also includes \code{\link{report_mixed_model}()} and
-#' \code{\link{emmeans_mixed_model}()}, small helpers that delegate fitted model
-#' interpretation and post hoc marginal-mean inference to the optional
-#' \pkg{report} and \pkg{emmeans} packages when they are installed. The main
-#' user-facing data objects are the book datasets:
+#' @section Functions:
 #' \describe{
-#'   \item{\code{\link{ex121}}}{Dose comparison data for packed cell volume.}
-#'   \item{\code{\link{ex124}}}{Herd, drug, and dose packed cell volume data.}
-#'   \item{\code{\link{ex125}}}{Region, drug, and dose split-plot data.}
-#'   \item{\code{\link{ex127}}}{Sire-level weaning weight data.}
-#'   \item{\code{\link{ex31}}}{Designed experiment data for PCV response.}
-#'   \item{\code{\link{ex32}}}{Breed, sire, sex, age, and weaning weight data.}
-#'   \item{\code{\link{ex33}}}{Longitudinal PCV data by animal and breed.}
+#'   \item{\code{\link{vlm_fit}()}}{fits a linear mixed model by REML, ML or Type 3 moments: covariance parameters,
+#'     fixed-effects solution, Type 3 or Type 1 tests and fit statistics.}
+#'   \item{\code{\link{vlm_random}()}, \code{\link{vlm_repeated}()}}{random coefficients (VC or UN) and residual
+#'     structures (CS, AR(1), SP(POW), UN).}
+#'   \item{\code{\link{vlm_lsmeans}()}, \code{\link{vlm_estimate}()}, \code{\link{vlm_contrast}()}}{least-squares
+#'     means, estimates in the broad and narrow inference spaces, and contrasts.}
+#'   \item{\code{\link{vlm_blup}()}}{best linear unbiased predictions of the random effects.}
+#'   \item{\code{\link{vlm_ems}()}}{analysis of variance with expected mean squares and synthesised F tests.}
+#'   \item{\code{\link{vlm_compare}()}}{information criteria and likelihood ratio tests of several fits.}
+#'   \item{\code{\link{vlm_interpret}()}, \code{\link{vlm_cite}()}, \code{\link{vlm_app}()}}{plain-language
+#'     interpretation, references and a shiny application.}
+#'   \item{\code{\link{emmeans_mixed_model}()}, \code{\link{report_mixed_model}()}}{the helpers of version 1.1.0,
+#'     now also for \code{vlm_fit} results.}
 #' }
-#'
-#' The example help pages reproduce the corresponding analyses with modern R
-#' packages such as \pkg{lme4}, \pkg{lmerTest}, \pkg{nlme}, \pkg{multcomp},
-#' \pkg{collapse}, \pkg{ggplot2}, and \pkg{emmeans} where those packages are
-#' available. Numerical results can differ slightly from the book because the
-#' book reports SAS output and modern R packages use their own optimizers,
-#' parameterizations, and degrees-of-freedom methods.
-#'
-#' A typical workflow is:
-#' \enumerate{
-#'   \item Load one of the included datasets with \code{data()}.
-#'   \item Inspect the matching example help page, such as
-#'     \code{?Examp2.4.2.2}.
-#'   \item Fit the fixed effect or mixed model shown in the example.
-#'   \item Compare estimates, variance components, and tests with the book.
-#'   \item Use \code{\link{report_mixed_model}()} for an optional narrative
-#'     model report when \pkg{report} is installed.
-#'   \item Use \code{\link{emmeans_mixed_model}()} for optional estimated
-#'     marginal means and post hoc comparisons when \pkg{emmeans} is installed.
-#'   \item Use the package vignettes for chapter-level narrative examples.
-#' }
-#'
-#' @section Affiliation:
-#' School of Mathematical and Statistical Sciences, Clemson University, Clemson, South Carolina, USA.
-#'
-#' @section Vignettes:
-#' The Quarto vignettes provide an introduction, methodology overview,
-#' chapter/example walkthrough, and plotting guide:
-#' \itemize{
-#'   \item \code{vetresearchlmm-introduction}
-#'   \item \code{vetresearchlmm-methodology}
-#'   \item \code{vetresearchlmm-examples}
-#'   \item \code{vetresearchlmm-plotting}
-#' }
-#'
+#' The help pages \code{\link{Examp1.3.2}} to \code{\link{Examp3.3}} give the code of every example of the book,
+#' and the data sets are \code{\link{ex121}} to \code{\link{ex127}}, \code{\link{ex31}}, \code{\link{ex32}} and
+#' \code{\link{ex33}}.
 #' @references
-#' Duchateau, L., Janssen, P., and Rowlands, G. J. (1998).
-#' \emph{Linear Mixed Models: An Introduction with Applications in Veterinary
-#' Research}. International Livestock Research Institute.
-#'
+#' Duchateau, L., Janssen, P. and Rowlands, G. J. (1998). \emph{Linear Mixed Models. An Introduction with
+#' Applications in Veterinary Research}. International Livestock Research Institute, Nairobi.
 #' @author
-#' Muhammad Yaseen \email{myaseen208@@gmail.com}
-#'
-#' @keywords package datasets
-#'
+#' Muhammad Yaseen (\email{myaseen208@@gmail.com}); the book and its data: Luc Duchateau, Paul Janssen and John
+#' Rowlands.
+#' @importFrom ggplot2 .data
+#' @importFrom data.table :=
+#' @keywords internal
 "_PACKAGE"

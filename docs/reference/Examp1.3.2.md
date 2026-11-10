@@ -1,96 +1,127 @@
-# Examp1.3.2 from Duchateau, L. and Janssen, P. and Rowlands, G. J. (1998).*Linear Mixed Models. An Introduction with applications in Veterinary Research*. International Livestock Research Institute.
+# Example 1.3.2: expected mean squares in the fixed and the mixed model
 
-Examp1.3.2 is used for inspecting probability distribution and to define
-a plausible process through linear models and generalized linear models.
+Drugs are given to whole herds and doses to animals within herds
+([`ex124`](https://myaseen208.com/VetResearchLMM/reference/ex124.md)).
+With herd random, drug is tested against herd within drug (Table
+1.3.2.2); with one observation deleted the two expected mean squares no
+longer match (Table 1.3.2.3: 9.7143 and 9.7222), so the F test is only
+approximate.
 
 ## References
 
-1.  Duchateau, L. and Janssen, P. and Rowlands, G. J. (1998).*Linear
-    Mixed Models. An Introduction with applications in Veterinary
-    Research*. International Livestock Research Institute.
+Duchateau, L., Janssen, P. and Rowlands, G. J. (1998). *Linear Mixed
+Models. An Introduction with Applications in Veterinary Research*.
+International Livestock Research Institute, Nairobi.
 
 ## See also
 
+[`vlm_ems`](https://myaseen208.com/VetResearchLMM/reference/vlm_ems.md),
+[`vlm_fit`](https://myaseen208.com/VetResearchLMM/reference/vlm_fit.md),
 [`ex124`](https://myaseen208.com/VetResearchLMM/reference/ex124.md)
+
+Other VetResearchLMM examples:
+[`Examp2.2.1.7`](https://myaseen208.com/VetResearchLMM/reference/Examp2.2.1.7.md),
+[`Examp2.3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp2.3.2.md),
+[`Examp2.4.2.2`](https://myaseen208.com/VetResearchLMM/reference/Examp2.4.2.2.md),
+[`Examp2.4.3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.4.3.1.md),
+[`Examp2.5.1.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.1.1.md),
+[`Examp2.5.2.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.2.1.md),
+[`Examp2.5.3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.3.1.md),
+[`Examp2.5.4.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.4.1.md),
+[`Examp2.6.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.6.1.md),
+[`Examp3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp3.1.md),
+[`Examp3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp3.2.md),
+[`Examp3.3`](https://myaseen208.com/VetResearchLMM/reference/Examp3.3.md)
 
 ## Author
 
-1.  Muhammad Yaseen (<myaseen208@gmail.com>)
+Muhammad Yaseen (<myaseen208@gmail.com>)
 
 ## Examples
 
 ``` r
-#-------------------------------------------------------------
-## Example 1.3.2 p-16
-#-------------------------------------------------------------
- # PROC GLM DATA=ex124;
- # CLASS herd dose drug;
- # MODEL PCVdif=drug herd(drug) dose dose*drug;
- # RANDOM herd(drug);
- # RUN;
+# SAS program of the book (Appendix B):
+#   proc glm data=ex124;
+#     class herd dose drug;
+#     model PCVdif = drug herd(drug) dose dose*drug;
+#     random herd(drug) / test;
+#   run;
 
-library(lme4)
-#> Loading required package: Matrix
-str(ex124)
-#> 'data.frame':    40 obs. of  4 variables:
-#>  $ herd  : int  1 1 1 1 1 1 1 1 1 1 ...
-#>  $ drug  : Factor w/ 2 levels "Berenil","Samorin": 1 1 1 1 1 1 1 1 1 1 ...
-#>  $ dose  : Factor w/ 2 levels "h","l": 2 2 2 2 2 1 1 1 1 1 ...
-#>  $ PCVdif: num  2.5 1.6 3.5 2.6 2.8 6.9 6.8 7.2 5.9 6.5 ...
-summary(ex124)
-#>       herd           drug    dose       PCVdif     
-#>  Min.   :1.00   Berenil:20   h:20   Min.   :1.600  
-#>  1st Qu.:1.75   Samorin:20   l:20   1st Qu.:3.225  
-#>  Median :2.50                       Median :5.250  
-#>  Mean   :2.50                       Mean   :5.263  
-#>  3rd Qu.:3.25                       3rd Qu.:7.225  
-#>  Max.   :4.00                       Max.   :8.700  
-
-ex124 <-
-  ex124 |>
-  collapse::fmutate(
-    herd1 = factor(herd),
-    drug1 = factor(drug),
-    dose1 = factor(dose)
-  )
-
-fm1.1 <-
-  aov(
-      formula     = PCVdif ~ drug1 + Error(herd1:drug1) + dose1 + dose1:drug1
-    , data        = ex124
-    , projections = FALSE
-    , qr          = TRUE
-    , contrasts   = NULL
-  #  , ...
+em <-
+  vlm_ems(
+      fixed  = PCVdif ~ drug + drug:herd + dose + dose:drug
+    , data   = ex124
+    , random = ~ drug:herd
+    , type   = 3
+    , class  = "herd"
     )
-#> Warning: Error() model is singular
-if (requireNamespace("report", quietly = TRUE)) {
-  fm1.1 |>
-    report::report()
-}
-#> The repeated-measures ANOVA (formula: PCVdif ~ drug1 + Error(herd1:drug1) +
-#> dose1 + dose1:drug1) suggests that:
+em
+#> Type 3 analysis of variance of PCVdif
 #> 
-#>   - The main effect of dose1 is statistically significant and medium (F(1, 34) =
-#> 732.39, p < .001; Eta2 (partial) = 0.13, 95% CI [0.00, 1.00])
-#>   - The interaction between drug1 and dose1 is statistically not significant and
-#> large (F(1, 34) = 0.66, p = 0.421; Eta2 (partial) = 0.96, 95% CI [0.93, 1.00])
-#>   - The main effect of drug1 is statistically NA and small (F(, 34) = , ; Eta2
-#> (partial) = 0.02, 95% CI [0.00, 1.00])
+#> Analysis of variance
+#>     source df     ss     ms                                         ems      F
+#>       drug  1  1.722  1.722 Var(Residual) + 10 Var(drug:herd) + Q(drug) 0.3048
+#>  drug:herd  2  11.30  5.650           Var(Residual) + 10 Var(drug:herd)  23.97
+#>       dose  1  172.6  172.6                     Var(Residual) + Q(dose)  732.4
+#>  drug:dose  1 0.1562 0.1562                Var(Residual) + Q(drug:dose) 0.6629
+#>   Residual 34  8.014 0.2357                               Var(Residual)       
+#>  den_df      p
+#>       2  0.636
+#>      34 <1e-04
+#>      34 <1e-04
+#>      34  0.421
+#>       .      .
 #> 
-#> Effect sizes were labelled following Field's (2013) recommendations.
-summary(fm1.1)
+#> Error terms of the tests
+#>     source           error
+#>       drug 1 MS(drug:herd)
+#>  drug:herd  1 MS(Residual)
+#>       dose  1 MS(Residual)
+#>  drug:dose  1 MS(Residual)
 #> 
-#> Error: herd1:drug1
-#>           Df Sum Sq Mean Sq F value Pr(>F)
-#> drug1      1  1.722   1.722   0.305  0.636
-#> Residuals  2 11.300   5.650               
+#> Type 3 estimates of the variance components
+#>  component estimate
+#>  drug:herd   0.5415
+#>   Residual   0.2357
 #> 
-#> Error: Within
-#>             Df Sum Sq Mean Sq F value Pr(>F)    
-#> dose1        1 172.64  172.64 732.394 <2e-16 ***
-#> drug1:dose1  1   0.16    0.16   0.663  0.421    
-#> Residuals   34   8.01    0.24                   
-#> ---
-#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#> Sources: Duchateau, Janssen and Rowlands (1998); Searle, Casella and McCulloch
+#> (1992); Satterthwaite (1946). Full references: vlm_cite(x).
+
+# one observation deleted (Table 1.3.2.3)
+em1 <-
+  vlm_ems(
+      fixed  = PCVdif ~ drug + drug:herd + dose + dose:drug
+    , data   = ex124[-1, ]
+    , random = ~ drug:herd
+    , type   = 3
+    , class  = "herd"
+    )
+em1$coefficients
+#>           drug:herd Residual
+#> drug       9.714286        1
+#> drug:herd  9.722222        1
+#> dose       0.000000        1
+#> drug:dose  0.000000        1
+#> Residual   0.000000        1
+
+# the mixed model analysis that replaces it
+fm <-
+  vlm_fit(
+      fixed    = PCVdif ~ drug + dose + drug:dose
+    , data     = ex124
+    , random   = ~ drug:herd
+    , repeated = NULL
+    , method   = "REML"
+    , ddfm     = "satterth"
+    , type     = 3
+    , class    = "herd"
+    , bound    = TRUE
+    , control  = list()
+    )
+fm$tests
+#>       effect num_df den_df           F            p
+#>       <char>  <int>  <num>       <num>        <num>
+#> 1:      drug      1      2   0.3048095 6.363390e-01
+#> 2:      dose      1     34 732.3935991 1.385997e-24
+#> 3: drug:dose      1     34   0.6628611 4.212176e-01
 ```

@@ -1,12 +1,22 @@
 # Articles
 
-### Articles
+### Getting started
 
-- [Introduction to
-  VetResearchLMM](https://myaseen208.com/VetResearchLMM/articles/vetresearchlmm-introduction.md):
-- [Linear Mixed Model
-  Methodology](https://myaseen208.com/VetResearchLMM/articles/vetresearchlmm-methodology.md):
-- [Book Examples in
-  R](https://myaseen208.com/VetResearchLMM/articles/vetresearchlmm-examples.md):
-- [Plotting the Veterinary
-  Examples](https://myaseen208.com/VetResearchLMM/articles/vetresearchlmm-plotting.md):
+- [Getting started with
+  VetResearchLMM](https://myaseen208.com/VetResearchLMM/articles/VetResearchLMM_01_getting_started.md):
+- [The methods of
+  VetResearchLMM](https://myaseen208.com/VetResearchLMM/articles/VetResearchLMM_02_theory.md):
+
+### The book
+
+- [The examples of Chapters 1 and
+  2](https://myaseen208.com/VetResearchLMM/articles/VetResearchLMM_03_book_chapters_1_2.md):
+- [The examples of Chapter
+  3](https://myaseen208.com/VetResearchLMM/articles/VetResearchLMM_04_book_chapter_3.md):
+- [Validation of
+  VetResearchLMM](https://myaseen208.com/VetResearchLMM/articles/VetResearchLMM_05_validation.md):
+
+### Application
+
+- [The VetResearchLMM
+  application](https://myaseen208.com/VetResearchLMM/articles/VetResearchLMM_06_app.md):

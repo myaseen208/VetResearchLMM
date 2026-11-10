@@ -1,0 +1,250 @@
+---
+title: "The examples of Chapters 1 and 2"
+author: "Muhammad Yaseen"
+date: last-modified
+format:
+  html:
+    self-contained: true
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    highlight-style: pygments
+    code-tools: true
+    html-math-method: mathjax
+vignette: >
+  %\VignetteIndexEntry{The examples of Chapters 1 and 2}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+{{< include _VetResearchLMM-macros.txt >}}
+
+```{r setup, include = FALSE}
+# HTML figures are drawn as PNG and kept as WebP: lossless, or lossy at quality 90 when that is less than half the
+# size. The PDF figures stay vector graphics. Any failure of magick (not installed, no WebP, or a broken
+# installation whose system libraries are missing) keeps the PNG
+webp <- function(path) {
+  if (knitr::is_latex_output() || !grepl(pattern = "[.]png$", x = path)) return(path)
+  tryCatch(
+      {
+        if (!requireNamespace("magick", quietly = TRUE) || !isTRUE(magick::magick_config()$webp)) return(path)
+        img <- magick::image_read(path)
+        out <- sub(pattern = "[.]png$", replacement = ".webp", x = path)
+        tmp <- tempfile(fileext = ".webp")
+        magick::image_write(
+            image   = img
+          , path    = out
+          , format  = "webp"
+          , quality = 100
+          , defines = c(`webp:lossless` = "true")
+          )
+        magick::image_write(image = img, path = tmp, format = "webp", quality = 90)
+        if (file.size(tmp) < file.size(out) / 2) file.copy(from = tmp, to = out, overwrite = TRUE)
+        unlink(c(path, tmp))
+        out
+      }
+    , error = function(e) path
+    )
+}
+knitr::opts_chunk$set(collapse = FALSE, comment = "", fig.width = 7, fig.height = 4.2,
+                      dev = if (knitr::is_latex_output()) "cairo_pdf" else "ragg_png", dpi = 96,
+                      fig.process = webp)
+if (requireNamespace("VetResearchLMM", quietly = TRUE)) library(VetResearchLMM) else
+  pkgload::load_all(export_all = FALSE, helpers = FALSE, quiet = TRUE)
+```
+
+
+# Abstract
+
+Every example of Chapters 1 and 2 of Duchateau, Janssen and Rowlands (1998), with the SAS program of Appendix B,
+the same analysis with **VetResearchLMM**, and the numbers printed in the book next to the computed ones. All of them
+agree (the variance 3.685 of Example 2.4.3.1 is printed truncated; it is 3.6855).
+
+```{r ref}
+ref <-
+  vlm_reference(
+      source   = NULL
+    , evaluate = TRUE
+    , level    = 1
+    )
+show_ref <- function(pattern) {
+  r <- ref[grepl(pattern = pattern, x = ref$source)]
+  knitr::kable(x = r[, c("quantity", "value", "computed", "agrees")], digits = 4,
+               col.names = c("Quantity", "Book", "Computed", "Agrees"))
+}
+```
+
+# Example 1.3.2: expected mean squares
+
+Drugs were given to whole herds and doses to animals (`ex124`). With herd random, drug must be tested against herd
+within drug, as the expected mean squares show; when one animal is removed, the two expected mean squares no longer
+match (9.7143 against 9.7222) and the F test becomes approximate, one reason to prefer the mixed model.
+
+```{r}
+em1 <-
+  vlm_ems(
+      fixed  = PCVdif ~ drug + drug:herd + dose + dose:drug
+    , data   = ex124[-1, ]
+    , random = ~ drug:herd
+    , type   = 3
+    , class  = "herd"
+    )
+em1
+show_ref("Table 1.3.2")
+```
+
+# Example 2.2.1.7: one-way analysis of variance
+
+```{r}
+f2217 <-
+  vlm_fit(
+      fixed    = PCVdiff ~ dose
+    , data     = ex121
+    , random   = NULL
+    , repeated = NULL
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = c("default", "contain", "residual", "betwithin", "satterth", "kr")
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+vlm_estimate(
+    fit    = f2217
+  , L      = list("l vs mh" = list(dose = c(-0.5, 1, -0.5)))
+  , random = NULL
+  , level  = 0.95
+  )
+show_ref("2.2.1")
+```
+
+# Section 2.3.2: the models of Chapter 1
+
+The randomised blocks of `ex122`, the herds nested in drug of `ex123` and the ELISA data of `ex126`, where animals
+and times are random and the mean is the only fixed effect:
+
+```{r}
+f126 <-
+  vlm_fit(
+      fixed    = OD ~ 1
+    , data     = ex126
+    , random   = ~ anim_id + time
+    , repeated = NULL
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = c("default", "contain", "residual", "betwithin", "satterth", "kr")
+    , type     = 3
+    , class    = "time"
+    , bound    = TRUE
+    , control  = list()
+    )
+f126$covariance
+```
+
+# Example 2.4.2.2: ML and REML
+
+```{r}
+ml <-
+  vlm_fit(
+      fixed    = Pcv ~ Drug + dose + Drug:dose
+    , data     = ex125
+    , random   = ~ Region + Region:Drug
+    , repeated = NULL
+    , method   = "ML"
+    , ddfm     = c("default", "contain", "residual", "betwithin", "satterth", "kr")
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+reml <-
+  vlm_fit(
+      fixed    = Pcv ~ Drug + dose + Drug:dose
+    , data     = ex125
+    , random   = ~ Region + Region:Drug
+    , repeated = NULL
+    , method   = "REML"
+    , ddfm     = c("default", "contain", "residual", "betwithin", "satterth", "kr")
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+data.frame(
+    component = reml$covariance$parameter
+  , ML        = ml$covariance$estimate
+  , REML      = reml$covariance$estimate
+  )
+show_ref("Table 2.4.2.1")
+```
+
+# Example 2.4.3.1: best linear unbiased prediction
+
+```{r}
+fs <-
+  vlm_fit(
+      fixed    = Ww ~ 1
+    , data     = ex127
+    , random   = ~ sire
+    , repeated = NULL
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = c("default", "contain", "residual", "betwithin", "satterth", "kr")
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+vlm_blup(
+    fit   = fs
+  , level = 0.95
+  )
+show_ref("2.4.3.1")
+```
+
+# Examples 2.5.1.1 to 2.5.4.1: fixed effects, estimates and inference spaces
+
+```{r}
+fm <-
+  vlm_fit(
+      fixed    = Pcv ~ Drug + dose + Drug:dose
+    , data     = ex125
+    , random   = ~ Region + Region:Drug
+    , repeated = NULL
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = "satterth"
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+fm$fixed
+vlm_estimate(
+    fit    = fm
+  , L      = list(
+        "broad"  = list(Intercept = 1, Drug = c(0, 1), dose = c(0.5, 0.5), "Drug:dose" = c(0, 0, 0.5, 0.5))
+      , "narrow" = list(Intercept = 1, Drug = c(0, 1), dose = c(0.5, 0.5), "Drug:dose" = c(0, 0, 0.5, 0.5))
+      )
+  , random = list("narrow" = list(Region = rep(1 / 6, 6), "Region:Drug" = rep(c(0, 1 / 6), 6)))
+  , level  = 0.95
+  )
+show_ref("2\\.5\\.|Table 2\\.5")
+```
+
+# Example 2.6.1: general linear hypotheses
+
+```{r}
+vlm_contrast(
+    fit = fm
+  , L   = list(
+        "all" = list(
+            list(Drug = c(1, -1), "Drug:dose" = c(0.5, 0.5, -0.5, -0.5))
+          , list(dose = c(1, -1), "Drug:dose" = c(0.5, -0.5, 0.5, -0.5))
+          , list("Drug:dose" = c(0.5, -0.5, -0.5, 0.5))
+          )
+      )
+  )
+show_ref("2.6.1")
+```

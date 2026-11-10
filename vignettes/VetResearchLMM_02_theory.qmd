@@ -1,0 +1,236 @@
+---
+title: "The methods of VetResearchLMM"
+author: "Muhammad Yaseen"
+date: last-modified
+format:
+  html:
+    self-contained: true
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    highlight-style: pygments
+    code-tools: true
+    html-math-method: mathjax
+vignette: >
+  %\VignetteIndexEntry{The methods of VetResearchLMM}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+{{< include _VetResearchLMM-macros.txt >}}
+
+```{r setup, include = FALSE}
+# HTML figures are drawn as PNG and kept as WebP: lossless, or lossy at quality 90 when that is less than half the
+# size. The PDF figures stay vector graphics. Any failure of magick (not installed, no WebP, or a broken
+# installation whose system libraries are missing) keeps the PNG
+webp <- function(path) {
+  if (knitr::is_latex_output() || !grepl(pattern = "[.]png$", x = path)) return(path)
+  tryCatch(
+      {
+        if (!requireNamespace("magick", quietly = TRUE) || !isTRUE(magick::magick_config()$webp)) return(path)
+        img <- magick::image_read(path)
+        out <- sub(pattern = "[.]png$", replacement = ".webp", x = path)
+        tmp <- tempfile(fileext = ".webp")
+        magick::image_write(
+            image   = img
+          , path    = out
+          , format  = "webp"
+          , quality = 100
+          , defines = c(`webp:lossless` = "true")
+          )
+        magick::image_write(image = img, path = tmp, format = "webp", quality = 90)
+        if (file.size(tmp) < file.size(out) / 2) file.copy(from = tmp, to = out, overwrite = TRUE)
+        unlink(c(path, tmp))
+        out
+      }
+    , error = function(e) path
+    )
+}
+knitr::opts_chunk$set(collapse = FALSE, comment = "", fig.width = 7, fig.height = 4.2,
+                      dev = if (knitr::is_latex_output()) "cairo_pdf" else "ragg_png", dpi = 96,
+                      fig.process = webp)
+if (requireNamespace("VetResearchLMM", quietly = TRUE)) library(VetResearchLMM) else
+  pkgload::load_all(export_all = FALSE, helpers = FALSE, quiet = TRUE)
+```
+
+
+# Abstract
+
+This vignette states the methods that `vlm_fit()` and the functions that use a fit implement: the linear mixed
+model, restricted and full maximum likelihood, the generalised least-squares solution in the overparameterised
+coding, estimability, Type 3 and Type 1 tests, the five methods for the denominator degrees of freedom, the broad and
+narrow inference spaces, best linear unbiased prediction, expected mean squares, covariance structures and fit
+statistics. The notation follows the book: scalars upper case, vectors lower-case bold, matrices upper-case bold.
+
+# The model
+
+With $N$ observations,
+$$
+\vy = \mX\vbeta + \mZ\vu + \ve, \qquad \vu \sim N(\mathbf{0}, \mG), \quad \ve \sim N(\mathbf{0}, \mR),
+\quad \Var(\vy) = \mV(\vtheta) = \mZ\mG\mZ^{\top} + \mR,
+$$
+where $\vtheta$ holds the covariance parameters. $\mX$ is overparameterised, as in SAS: one column for every level
+(or observed cell) of a classification effect, so that its rank $P$ is smaller than its number of columns.
+
+**Random effects.** A term of `random = ~ Region + Region:Drug` contributes $\sigma_k^2\mZ_k\mZ_k^{\top}$ to $\mV$,
+with $\mZ_k$ the indicators of its levels. `vlm_random(effects = ~ 1 + time, subject = ~ animal, type = "un")` gives
+every subject $s$ a vector $\vb_s \sim N(\mathbf{0}, \mG_0)$ of coefficients; `type = "un"` leaves $\mG_0$
+unstructured, with parameters $UN(1,1), UN(2,1), UN(2,2)$, and `type = "vc"` makes it diagonal.
+
+**Residual structures** within a subject (`vlm_repeated()`), with $t_i$ the time and $r_i$ the rank of the time of
+observation $i$:
+$$
+\mathrm{CS}: \sigma_1 + \sigma^2\delta_{ij}, \qquad \mathrm{AR(1)}: \sigma^2\rho^{|r_i - r_j|}, \qquad
+\mathrm{SP(POW)}: \sigma^2\rho^{|t_i - t_j|}, \qquad \mathrm{UN}: \sigma_{t_i t_j}.
+$$
+
+# Estimation
+
+## Likelihoods
+
+With $\vr = \vy - \mX\widehat{\vbeta}$ the generalised least-squares residuals, the restricted (REML) and full (ML)
+log-likelihoods are
+$$
+\ell_R(\vtheta) = -\tfrac{1}{2}\left\{(N - P)\log 2\pi + \log|\mV| + \log|\mX^{\top}\mV^{-1}\mX| +
+\vr^{\top}\mV^{-1}\vr\right\}, \qquad
+\ell(\vtheta) = -\tfrac{1}{2}\left\{N\log 2\pi + \log|\mV| + \vr^{\top}\mV^{-1}\vr\right\},
+$$
+where $\mX$ is restricted to its $P$ non-aliased columns (Patterson and Thompson 1971; Harville 1977). REML accounts
+for the degrees of freedom used by the fixed effects; ML underestimates the variances (Table 2.4.2.1 of the book).
+
+## Maximisation
+
+With $\mV_i = \partial\mV/\partial\theta_i$ and
+$\mP = \mV^{-1} - \mV^{-1}\mX(\mX^{\top}\mV^{-1}\mX)^{-}\mX^{\top}\mV^{-1}$ (for ML, $\mP = \mV^{-1}$), the score and
+the average information (Gilmour, Thompson and Cullis 1995) are
+$$
+\frac{\partial\ell_R}{\partial\theta_i} = -\tfrac{1}{2}\tr(\mP\mV_i) + \tfrac{1}{2}\vy^{\top}\mP\mV_i\mP\vy, \qquad
+\mathcal{I}_{ij} = \tfrac{1}{2}\vy^{\top}\mP\mV_i\mP\mV_j\mP\vy.
+$$
+Newton steps $\vtheta \leftarrow \vtheta + \mathcal{I}^{-1}\nabla\ell_R$ are halved until the likelihood
+increases; variances stay non-negative (parameters on the bound leave the step), as in SAS. The standard errors of
+$\widehat{\vtheta}$ come from the observed information, the Hessian of $-\ell_R$, computed from the analytic score.
+
+## Method of moments
+
+`method = "Type3"` equates the Type 3 mean squares of the random effects and the residual to their expectations
+(next section but one) and solves for the variance components; negative solutions are set to zero.
+
+# Fixed effects
+
+The generalised least-squares solution is
+$$
+\widehat{\vbeta} = \mC\mX^{\top}\mV^{-1}\vy, \qquad \mC = (\mX^{\top}\mV^{-1}\mX)^{-},
+$$
+with the generalised inverse that sets aliased columns (in model order) to zero: the G2 inverse of the SAS sweep
+operator, which gives the last level of each effect the value 0. A combination $\vl^{\top}\vbeta$ is *estimable* when
+$\vl$ lies in the row space of $\mX$; then $\vl^{\top}\widehat{\vbeta}$ and $\Var(\vl^{\top}\widehat{\vbeta}) =
+\vl^{\top}\mC\vl$ do not depend on the generalised inverse. Non-estimable combinations are returned as `NA`.
+
+**Least-squares means** use $\vl$ with 1 for the intercept and the matching level, equal weights over the levels of
+the other factors of each effect, and the means of the covariates (or the values of `at`).
+
+**Type 3 tests** use the sum-to-zero (Sigma-restricted) coding of every effect, in which effects nested in another
+sum to zero within it: the test of an effect is the Wald test that its coefficients are zero. This is the SAS Type 3
+hypothesis whenever every cell is observed. **Type 1 tests** are sequential: after whitening with
+$\mV^{-1/2}$, the rows of the triangular factor of the QR decomposition of $\mX$ that belong to the effect.
+
+For $\mL$ of rank $Q$,
+$$
+F = \frac{(\mL\widehat{\vbeta})^{\top}(\mL\mC\mL^{\top})^{-1}(\mL\widehat{\vbeta})}{Q}.
+$$
+
+# Denominator degrees of freedom
+
+* **Containment**: the rank contribution of the random effects that contain the fixed effect (all its variables,
+  covariates included), the smallest one if several do; $N - \mathrm{rank}[\mX\ \mZ]$ if none does.
+* **Residual**: $N - \mathrm{rank}[\mX\ \mZ]$.
+* **Between-within**: for effects constant within subjects, the number of subjects minus the rank of those effects;
+  for the others, $N - \mathrm{rank}[\mX\ \mZ_s]$ with $\mZ_s$ the subject indicators.
+* **Satterthwaite** (Satterthwaite 1946; Giesbrecht and Burns 1985): with $\mathbf{A}$ the asymptotic covariance of
+  $\widehat{\vtheta}$ and $g_i = \partial(\vl^{\top}\mC\vl)/\partial\theta_i = -\vl^{\top}\mC\mX^{\top}\mV^{-1}
+  \mV_i\mV^{-1}\mX\mC\vl$,
+  $$
+  \nu = \frac{2(\vl^{\top}\mC\vl)^2}{\vg^{\top}\mathbf{A}\vg}.
+  $$
+  For $Q > 1$ rows, $\mL\mC\mL^{\top}$ is decomposed into $Q$ independent rows with $\nu_m$ each, and
+  $\nu = 2E/(E - Q)$ with $E = \sum_m \nu_m/(\nu_m - 2)$ (Fai and Cornelius 1996).
+* **Kenward-Roger** (Kenward and Roger 1997): the covariance of $\widehat{\vbeta}$ is inflated for the uncertainty
+  in $\widehat{\vtheta}$,
+  $$
+  \mPhi_A = \mC + 2\mC\Big\{\sum_{i,j} W_{ij}\big(\mQ_{ij} - \mP_i\mC\mP_j - \tfrac{1}{4}\mR_{ij}\big)\Big\}\mC,
+  $$
+  with $\mP_i = -\mX^{\top}\mV^{-1}\mV_i\mV^{-1}\mX$, $\mQ_{ij} = \mX^{\top}\mV^{-1}\mV_i\mV^{-1}\mV_j\mV^{-1}\mX$,
+  $\mR_{ij} = \mX^{\top}\mV^{-1}(\partial^2\mV/\partial\theta_i\partial\theta_j)\mV^{-1}\mX$ and $\mW$ the inverse
+  expected information; the F statistic is scaled and its degrees of freedom matched to the first two moments.
+
+# Inference spaces and prediction
+
+Henderson's mixed model equations give the best linear unbiased predictions
+$\widehat{\vu} = \mG\mZ^{\top}\mV^{-1}(\vy - \mX\widehat{\vbeta})$ and the covariance of the errors
+$$
+\Var\begin{pmatrix}\widehat{\vbeta} - \vbeta\\ \widehat{\vu} - \vu\end{pmatrix} =
+\begin{pmatrix}\mC & -\mC\mX^{\top}\mV^{-1}\mZ\mG\\ \cdot & \mG - \mG\mZ^{\top}\mP\mZ\mG\end{pmatrix}.
+$$
+An estimate $\vl^{\top}\vbeta$ is in the **broad** inference space (valid for the population of regions, herds,
+\dots); adding $\vk^{\top}\vu$ (argument `random` of `vlm_estimate()`) restricts it to the observed levels, the
+**narrow** space (Example 2.5.4.1 of the book; McLean, Sanders and Stroup 1991).
+
+# Expected mean squares
+
+A sum of squares is a quadratic form $\vy^{\top}\mA\vy$ of rank $DF$. For random effects of design $\mZ_k$,
+$$
+\E(MS) = \sigma^2 + \sum_k \frac{\tr(\mZ_k^{\top}\mA\mZ_k)}{DF}\sigma_k^2 + Q(\text{fixed}),
+$$
+which with one observation deleted from Example 1.2.4 gives the coefficients 9.7143 and 9.7222 of Table 1.3.2.3.
+`vlm_ems()` builds the error term of each test as the combination of mean squares with the same expectation under
+the null hypothesis, with Satterthwaite degrees of freedom.
+
+# Fit statistics
+
+With $d$ covariance parameters (plus $P$ for ML), $N^* = N - P$ for REML ($N$ for ML) and $s$ subjects:
+$$
+AIC = -2\ell + 2d, \qquad AICC = -2\ell + \frac{2dN^*}{N^* - d - 1}, \qquad BIC = -2\ell + d\log s,
+$$
+smaller is better. SAS version 6, which the book used, printed the "larger is better" forms $\ell - d$ and
+$\ell - \tfrac{d}{2}\log N^*$; both are given. The null model likelihood ratio statistic compares the model with the
+one with independent errors only.
+
+# Notation
+
+```{r notation}
+nt <-
+  vlm_notation(
+      format = c("table", "path", "tex")[1]
+    )
+knitr::kable(nt[, c("text", "meaning", "argument")])
+```
+
+# References
+
+Fai, A. H.-T. and Cornelius, P. L. (1996). Approximate F-tests of multiple degree of freedom hypotheses in
+generalized least squares analyses of unbalanced split-plot experiments. *Journal of Statistical Computation and
+Simulation*, 54, 363-378.
+
+Giesbrecht, F. G. and Burns, J. C. (1985). Two-stage analysis based on a mixed model. *Biometrics*, 41, 477-486.
+
+Gilmour, A. R., Thompson, R. and Cullis, B. R. (1995). Average information REML. *Biometrics*, 51, 1440-1450.
+
+Harville, D. A. (1977). Maximum likelihood approaches to variance component estimation. *Journal of the American
+Statistical Association*, 72, 320-338.
+
+Kenward, M. G. and Roger, J. H. (1997). Small sample inference for fixed effects from restricted maximum
+likelihood. *Biometrics*, 53, 983-997.
+
+McLean, R. A., Sanders, W. L. and Stroup, W. W. (1991). A unified approach to mixed linear models. *The American
+Statistician*, 45, 54-64.
+
+Patterson, H. D. and Thompson, R. (1971). Recovery of inter-block information when block sizes are unequal.
+*Biometrika*, 58, 545-554.
+
+Satterthwaite, F. E. (1946). An approximate distribution of estimates of variance components. *Biometrics
+Bulletin*, 2, 110-114.

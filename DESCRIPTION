@@ -1,45 +1,74 @@
 Package: VetResearchLMM
 Type: Package
-Title: Linear Mixed Models - An Introduction with Applications in Veterinary Research
-Version: 1.1.0
+Title: Linear Mixed Models: An Introduction with Applications in Veterinary
+    Research
+Version: 2.0.0
+Date: 2026-11-10
 Authors@R: c(
-              person(
-                  c("Muhammad", "Yaseen")
-                , email = "myaseen208@gmail.com"
-                , role = c("aut", "cre")
-                , comment = c(Affiliation = "School of Mathematical and Statistical Sciences, Clemson University, Clemson, South Carolina, USA")
-                )
-            , person(c("Luc",  "Duchateau"),   email = "Luc.Duchateau@ugent.be", role = "ctb")
-            , person(c("Paul",  "Janssen"),    email = "paul.janssen@uhasselt.be", role = "ctb")
-            , person(c("John", "Rowlands"),    role = "ctb")
-            )
-Author: Muhammad Yaseen [aut, cre],
-    Luc Duchateau [ctb],
-    Paul Janssen [ctb],
-    John Rowlands [ctb]
-Maintainer: Muhammad Yaseen <myaseen208@gmail.com>
-Description: R Codes and Datasets for Duchateau, L. and Janssen, P. and Rowlands, G. J. (1998). Linear Mixed Models. An Introduction with applications in Veterinary Research. International Livestock Research Institute.
-Depends: R (>= 4.1.0)
-Suggests:
-    collapse,
-    emmeans,
-    ggplot2,
-    lme4,
-    lmerTest,
-    multcomp,
-    nlme,
-    quarto,
-    report,
-    testthat (>= 3.0.0)
-VignetteBuilder: quarto
+      person("Muhammad", "Yaseen", email = "myaseen208@gmail.com", role = c("aut", "cre"),
+             comment = c(ORCID = "0000-0002-5923-1714"))
+    , person("Luc", "Duchateau", email = "Luc.Duchateau@ugent.be", role = "ctb")
+    , person("Paul", "Janssen", email = "paul.janssen@uhasselt.be", role = "ctb")
+    , person("John", "Rowlands", role = "ctb")
+    )
+Description: Data sets and analyses of Duchateau, Janssen and Rowlands
+    (1998, ISBN:92-9146-038-9) "Linear Mixed Models: An Introduction with
+    Applications in Veterinary Research", with an own engine for linear
+    mixed models that gives the results of SAS PROC MIXED and PROC GLM:
+    restricted and full maximum likelihood and Type 3 moment estimation of
+    variance components; random coefficients with variance-component or
+    unstructured covariance; compound-symmetry, first-order autoregressive,
+    spatial power and unstructured residual covariance; the fixed-effects
+    solution in the overparameterised coding; Type 3 and Type 1 tests with
+    containment, residual, between-within, Satterthwaite (1946)
+    <doi:10.2307/3002019> and Kenward and Roger (1997)
+    <doi:10.2307/2533558> degrees of freedom; estimates and contrasts in
+    the broad and narrow inference spaces; least-squares means with
+    multiple comparisons; best linear unbiased predictions; expected mean
+    squares; information criteria and likelihood ratio tests. Every
+    published result of the book is reproduced and checked. With 'ggplot2'
+    graphics, a plain-language interpretation of every result and a
+    built-in 'shiny' application.
 License: GPL-2
-URL: https://myaseen208.com/VetResearchLMM,
-    https://github.com/myaseen208/VetResearchLMM/
+URL: https://myaseen208.com/VetResearchLMM/,
+    https://github.com/myaseen208/VetResearchLMM
 BugReports: https://github.com/myaseen208/VetResearchLMM/issues
 Encoding: UTF-8
-LazyData: TRUE
-RoxygenNote: 7.3.3
+Language: en-US
+Depends:
+    R (>= 4.2)
+Imports:
+    data.table,
+    ggplot2,
+    grDevices,
+    scales,
+    stats,
+    utils
+Suggests:
+    bslib,
+    DT,
+    emmeans,
+    knitr,
+    lme4,
+    lmerTest,
+    magick,
+    nlme,
+    pbkrtest,
+    pkgload,
+    quarto,
+    ragg,
+    report,
+    R.rsp,
+    shiny,
+    svglite,
+    testthat (>= 3.0.0),
+    withr
+VignetteBuilder:
+    quarto,
+    R.rsp
+LazyData: true
 Config/testthat/edition: 3
-Config/Needs/website: pkgdown, quarto
-Note: School of Mathematical and Statistical Sciences, Clemson University, Clemson, South Carolina, USA. 
-      Department of Mathematics and Statistics, University of Agriculture Faisalabad, Faisalabad-Pakistan.
+Config/skill/prefix: vlm
+Roxygen: list(markdown = FALSE)
+RoxygenNote: 7.3.1
+NeedsCompilation: no

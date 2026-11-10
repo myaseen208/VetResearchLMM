@@ -1,251 +1,136 @@
-# Examp2.5.3.1 from Duchateau, L. and Janssen, P. and Rowlands, G. J. (1998).*Linear Mixed Models. An Introduction with applications in Veterinary Research*. International Livestock Research Institute.
+# Example 2.5.3.1: confidence intervals with Satterthwaite degrees of freedom
 
-Examp2.5.3.1 is used for inspecting probability distribution and to
-define a plausible process through linear models and generalized linear
-models.
+Four linear combinations of the fixed effects of
+[`ex125`](https://myaseen208.com/VetResearchLMM/reference/ex125.md):
+their variances 0.478, 1.0975, 0.698 and 1.272 combine the variance
+components, and their Satterthwaite degrees of freedom (5, 6.2, 10 and
+8.2) the degrees of freedom of the mean squares of Table 2.5.3.1.
 
 ## References
 
-1.  Duchateau, L. and Janssen, P. and Rowlands, G. J. (1998).*Linear
-    Mixed Models. An Introduction with applications in Veterinary
-    Research*. International Livestock Research Institute.
+Duchateau, L., Janssen, P. and Rowlands, G. J. (1998). *Linear Mixed
+Models. An Introduction with Applications in Veterinary Research*.
+International Livestock Research Institute, Nairobi.
 
 ## See also
 
-[`ex124`](https://myaseen208.com/VetResearchLMM/reference/ex124.md)
+[`vlm_estimate`](https://myaseen208.com/VetResearchLMM/reference/vlm_estimate.md),
+[`vlm_ems`](https://myaseen208.com/VetResearchLMM/reference/vlm_ems.md),
+[`ex125`](https://myaseen208.com/VetResearchLMM/reference/ex125.md)
+
+Other VetResearchLMM examples:
+[`Examp1.3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp1.3.2.md),
+[`Examp2.2.1.7`](https://myaseen208.com/VetResearchLMM/reference/Examp2.2.1.7.md),
+[`Examp2.3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp2.3.2.md),
+[`Examp2.4.2.2`](https://myaseen208.com/VetResearchLMM/reference/Examp2.4.2.2.md),
+[`Examp2.4.3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.4.3.1.md),
+[`Examp2.5.1.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.1.1.md),
+[`Examp2.5.2.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.2.1.md),
+[`Examp2.5.4.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.5.4.1.md),
+[`Examp2.6.1`](https://myaseen208.com/VetResearchLMM/reference/Examp2.6.1.md),
+[`Examp3.1`](https://myaseen208.com/VetResearchLMM/reference/Examp3.1.md),
+[`Examp3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp3.2.md),
+[`Examp3.3`](https://myaseen208.com/VetResearchLMM/reference/Examp3.3.md)
 
 ## Author
 
-1.  Muhammad Yaseen (<myaseen208@gmail.com>)
+Muhammad Yaseen (<myaseen208@gmail.com>)
 
 ## Examples
 
 ``` r
-#-------------------------------------------------------------
-## Example 2.5.3.1 p-70
-#-------------------------------------------------------------
- # PROC GLM DATA=ex125;
- # CLASS drug dose region;
- # MODEL pcv=region drug region*drug dose drug*dose;
- # RANDOM region drug*region;
- # RUN;
+# SAS program of the book (Appendix B):
+#   proc mixed data=ex125;
+#     class drug dose region;
+#     model pcv = drug dose drug*dose / ddfm=satterth;
+#     random region drug*region;
+#     estimate 'drug dif' drug -1 1 drug*dose -0.5 -0.5 0.5 0.5;
+#     estimate 'Samorin mean' intercept 1 drug 0 1 dose 0.5 0.5 drug*dose 0 0 0.5 0.5;
+#     estimate 'Samorin HvsL' dose 1 -1 drug*dose 0 0 1 -1;
+#     estimate 'Samorin high' intercept 1 drug 0 1 dose 1 0 drug*dose 0 0 1 0;
+#   run;
 
-
- # PROC MIXED DATA=ex125;
- # CLASS drug dose region;
- # MODEL pcv=drug dose drug*dose / ddfm=satterth;
- # RANDOM region drug*region;
- # ESTIMATE 'drug dif' drug -1 1 drug*dose -0.5 -0.5 0.5 0.5;
- # ESTIMATE 'Samorin mean' INTERCEPT 1 drug 0 1 dose 0.5 0.5
- #                             drug*dose 0 0 0.5 0.5;
- # ESTIMATE 'Samorin HvsL' dose 1 -1 drug*dose 0 0 1 -1;
- # ESTIMATE 'Samorin high' INTERCEPT 1 drug 0 1 dose 1 0
- #                             drug*dose 0 0 1 0;
- # RUN;
-
-library(lme4)
-str(ex125)
-#> 'data.frame':    24 obs. of  4 variables:
-#>  $ Region: int  1 1 1 1 2 2 2 2 3 3 ...
-#>  $ Drug  : Factor w/ 2 levels "BERENIL","samorin": 1 1 2 2 1 1 2 2 1 1 ...
-#>  $ dose  : Factor w/ 2 levels "h","l": 1 2 1 2 1 2 1 2 1 2 ...
-#>  $ Pcv   : num  22.6 21.8 19.1 16.4 29 28.8 25.3 18.2 24 23.7 ...
-ex125 <-
-  ex125 |>
-  collapse::fmutate(Region1 = factor(Region))
- fm2.11 <-
-  aov(
-      formula     = Pcv ~ Region1 + Drug + Error(Drug:Region1) + dose + dose:Drug
-    , data        = ex125
-    , projections = FALSE
-    , qr          = TRUE
-    , contrasts   = NULL
-  #  , ...
+fm <-
+  vlm_fit(
+      fixed    = Pcv ~ Drug + dose + Drug:dose
+    , data     = ex125
+    , random   = ~ Region + Region:Drug
+    , repeated = NULL
+    , method   = "REML"
+    , ddfm     = "satterth"
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
     )
-#> Warning: Error() model is singular
- if (requireNamespace("report", quietly = TRUE)) {
-   fm2.11 |>
-     report::report()
- }
-#> The repeated-measures ANOVA (formula: Pcv ~ Region1 + Drug +
-#> Error(Drug:Region1) + dose + dose:Drug) suggests that:
+vlm_estimate(
+    fit    = fm
+  , L      = list(
+          "drug dif"     = list(Drug = c(-1, 1), "Drug:dose" = c(-0.5, -0.5, 0.5, 0.5))
+        , "Samorin mean" = list(Intercept = 1, Drug = c(0, 1),
+                                dose = c(0.5, 0.5), "Drug:dose" = c(0, 0, 0.5, 0.5))
+        , "Samorin HvsL" = list(dose = c(1, -1), "Drug:dose" = c(0, 0, 1, -1))
+        , "Samorin high" = list(Intercept = 1, Drug = c(0, 1),
+                                dose = c(1, 0), "Drug:dose" = c(0, 0, 1, 0))
+        )
+  , random = NULL
+  , level  = 0.95
+  )
+#> Estimates (denominator df: satterth)
 #> 
-#>   - The main effect of dose is statistically significant and large (F(1, 10) =
-#> 21.78, p < .001; Eta2 (partial) = 0.89, 95% CI [0.39, 1.00])
-#>   - The interaction between Drug and dose is statistically significant and large
-#> (F(1, 10) = 7.25, p = 0.023; Eta2 (partial) = 0.93, 95% CI [0.71, 1.00])
-#>   - The main effect of Drug is statistically NA and large (F(, 10) = , ; Eta2
-#> (partial) = 0.69, 95% CI [0.33, 1.00])
-#>   - The main effect of Region1 is statistically NA and large (F(, 10) = , ; Eta2
-#> (partial) = 0.42, 95% CI [0.05, 1.00])
+#> Estimates
+#>         label estimate     se    df      t        p  lower  upper space
+#>      drug dif   -5.558 0.6917 5.000 -8.036 0.000483 -7.336 -3.780 broad
+#>  Samorin mean    19.31  1.048 6.205  18.43  < 1e-04  16.77  21.85 broad
+#>  Samorin HvsL    4.350 0.8359 10.00  5.204 0.000399  2.487  6.213 broad
+#>  Samorin high    21.48  1.128 8.208  19.05  < 1e-04  18.89  24.07 broad
 #> 
-#> Effect sizes were labelled following Field's (2013) recommendations.
- summary(fm2.11)
-#> 
-#> Error: Drug:Region1
-#>           Df Sum Sq Mean Sq F value   Pr(>F)    
-#> Region1    5 117.37   23.47   8.178 0.018857 *  
-#> Drug       1 185.37  185.37  64.580 0.000483 ***
-#> Residuals  5  14.35    2.87                     
-#> ---
-#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-#> 
-#> Error: Within
-#>           Df Sum Sq Mean Sq F value   Pr(>F)    
-#> dose       1  45.65   45.65  21.775 0.000886 ***
-#> Drug:dose  1  15.20   15.20   7.251 0.022594 *  
-#> Residuals 10  20.96    2.10                     
-#> ---
-#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#> Sources: Duchateau, Janssen and Rowlands (1998); McLean, Sanders and Stroup
+#> (1991); Satterthwaite (1946); Giesbrecht and Burns (1985); Fai and Cornelius
+#> (1996). Full references: vlm_cite(x).
 
- fm2.12 <-
-  lmerTest::lmer(
-         formula    = Pcv ~ dose*Drug + (1|Region/Drug)
-       , data       = ex125
-       , REML       = TRUE
-       , control    = lmerControl()
-       , start      = NULL
-       , verbose    = 0L
-    #  , subset
-    #  , weights
-    #  , na.action
-    #  , offset
-       , contrasts  = list(dose = "contr.SAS", Drug = "contr.SAS")
-       , devFunOnly = FALSE
-    #  , ...
-       )
- if (requireNamespace("report", quietly = TRUE)) {
-   fm2.12 |>
-     report::report()
- }
-#> We fitted a linear mixed model (estimated using REML and nloptwrap optimizer)
-#> to predict Pcv with dose and Drug (formula: Pcv ~ dose * Drug). The model
-#> included Drug as random effects (formula: list(~1 | Drug:Region, ~1 | Region)).
-#> The model's total explanatory power is substantial (conditional R2 = 0.89) and
-#> the part related to the fixed effects alone (marginal R2) is of 0.58. The
-#> model's intercept, corresponding to dose = h and Drug = BERENIL, is at 17.13
-#> (95% CI [14.75, 19.51], t(17) = 15.19, p < .001). Within this model:
+# the mean squares and their expectations (Table 2.5.3.1)
+em <-
+  vlm_ems(
+      fixed  = Pcv ~ Region + Drug + Region:Drug + dose + Drug:dose
+    , data   = ex125
+    , random = ~ Region + Region:Drug
+    , type   = 3
+    , class  = NULL
+    )
+em
+#> Type 3 analysis of variance of Pcv
 #> 
-#>   - The effect of dose [h] is statistically significant and positive (beta =
-#> 4.35, 95% CI [2.59, 6.11], t(17) = 5.20, p < .001; Std. beta = 1.04, 95% CI
-#> [0.62, 1.47])
-#>   - The effect of Drug [BERENIL] is statistically significant and positive (beta
-#> = 7.15, 95% CI [5.23, 9.07], t(17) = 7.86, p < .001; Std. beta = 1.72, 95% CI
-#> [1.26, 2.18])
-#>   - The effect of dose [h] × Drug [BERENIL] is statistically significant and
-#> negative (beta = -3.18, 95% CI [-5.68, -0.69], t(17) = -2.69, p = 0.015; Std.
-#> beta = -0.76, 95% CI [-1.36, -0.17])
+#> Analysis of variance
+#>       source df    ss    ms                                                ems
+#>       Region  5 117.4 23.47 Var(Residual) + 4 Var(Region) + 2 Var(Region:Drug)
+#>         Drug  1 185.4 185.4       Var(Residual) + 2 Var(Region:Drug) + Q(Drug)
+#>  Region:Drug  5 14.35 2.870                 Var(Residual) + 2 Var(Region:Drug)
+#>         dose  1 45.65 45.65                            Var(Residual) + Q(dose)
+#>    Drug:dose  1 15.20 15.20                       Var(Residual) + Q(Drug:dose)
+#>     Residual 10 20.96 2.096                                      Var(Residual)
+#>      F den_df        p
+#>  8.178      5 0.018857
+#>  64.58      5 0.000483
+#>  1.369     10 0.313691
+#>  21.78     10 0.000886
+#>  7.251     10 0.022594
+#>             .        .
 #> 
-#> Standardized parameters were obtained by fitting the model on a standardized
-#> version of the dataset. 95% Confidence Intervals (CIs) and p-values were
-#> computed using a Wald t-distribution approximation.
- if (requireNamespace("emmeans", quietly = TRUE)) {
-   emm2.12 <- emmeans::emmeans(fm2.12, ~ dose | Drug, lmer.df = "asymptotic")
-   print(emm2.12)
-   print(emmeans::contrast(emm2.12, method = "pairwise"))
- }
-#> Drug = BERENIL:
-#>  dose emmean   SE  df asymp.LCL asymp.UCL
-#>  h      25.4 1.13 Inf      23.2      27.7
-#>  l      24.3 1.13 Inf      22.1      26.5
+#> Error terms of the tests
+#>       source             error
+#>       Region 1 MS(Region:Drug)
+#>         Drug 1 MS(Region:Drug)
+#>  Region:Drug    1 MS(Residual)
+#>         dose    1 MS(Residual)
+#>    Drug:dose    1 MS(Residual)
 #> 
-#> Drug = samorin:
-#>  dose emmean   SE  df asymp.LCL asymp.UCL
-#>  h      21.5 1.13 Inf      19.3      23.7
-#>  l      17.1 1.13 Inf      14.9      19.3
+#> Type 3 estimates of the variance components
+#>    component estimate
+#>       Region    5.151
+#>  Region:Drug   0.3870
+#>     Residual    2.096
 #> 
-#> Degrees-of-freedom method: asymptotic 
-#> Confidence level used: 0.95 
-#> Drug = BERENIL:
-#>  contrast estimate    SE  df z.ratio p.value
-#>  h - l        1.17 0.836 Inf   1.396  0.1628
-#> 
-#> Drug = samorin:
-#>  contrast estimate    SE  df z.ratio p.value
-#>  h - l        4.35 0.836 Inf   5.204 <0.0001
-#> 
-#> Degrees-of-freedom method: asymptotic 
- summary(fm2.12)
-#> Linear mixed model fit by REML. t-tests use Satterthwaite's method [
-#> lmerModLmerTest]
-#> Formula: Pcv ~ dose * Drug + (1 | Region/Drug)
-#>    Data: ex125
-#> 
-#> REML criterion at convergence: 92.4
-#> 
-#> Scaled residuals: 
-#>      Min       1Q   Median       3Q      Max 
-#> -1.71077 -0.51628  0.08414  0.70276  1.16129 
-#> 
-#> Random effects:
-#>  Groups      Name        Variance Std.Dev.
-#>  Drug:Region (Intercept) 0.387    0.6221  
-#>  Region      (Intercept) 5.151    2.2695  
-#>  Residual                2.096    1.4479  
-#> Number of obs: 24, groups:  Drug:Region, 12; Region, 6
-#> 
-#> Fixed effects:
-#>                   Estimate Std. Error      df t value Pr(>|t|)    
-#> (Intercept)        17.1333     1.1280  8.2080  15.189 2.69e-07 ***
-#> doseh               4.3500     0.8359 10.0000   5.204 0.000399 ***
-#> DrugBERENIL         7.1500     0.9098 11.8185   7.859 4.96e-06 ***
-#> doseh:DrugBERENIL  -3.1833     1.1822 10.0000  -2.693 0.022595 *  
-#> ---
-#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-#> 
-#> Correlation of Fixed Effects:
-#>             (Intr) doseh  DBEREN
-#> doseh       -0.371              
-#> DrugBERENIL -0.403  0.459       
-#> ds:DBERENIL  0.262 -0.707 -0.650
- anova(object = fm2.12, ddf = "Satterthwaite")
-#> Type III Analysis of Variance Table with Satterthwaite's method
-#>           Sum Sq Mean Sq NumDF DenDF F value    Pr(>F)    
-#> dose       45.65   45.65     1    10 21.7754 0.0008856 ***
-#> Drug      135.39  135.39     1     5 64.5796 0.0004826 ***
-#> dose:Drug  15.20   15.20     1    10  7.2507 0.0225945 *  
-#> ---
-#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-library(multcomp)
-Contrasts1 <-
-          matrix(c(
-                  1, 0.5, 0, 0
-                , 0, 0, -1, -0.5
-                , 1, 1, 0, 0
-                , 0, 1, 0, 0
-                )
-               , ncol = 4
-               , byrow = TRUE
-               , dimnames = list(
-                  c("C1", "C2", "C3", "C4")
-                , rownames(summary(fm2.12)$coef)
-               )
-              )
-
-Contrasts1
-#>    (Intercept) doseh DrugBERENIL doseh:DrugBERENIL
-#> C1           1   0.5           0               0.0
-#> C2           0   0.0          -1              -0.5
-#> C3           1   1.0           0               0.0
-#> C4           0   1.0           0               0.0
-summary(glht(fm2.12, linfct=Contrasts1))
-#> 
-#>   Simultaneous Tests for General Linear Hypotheses
-#> 
-#> Fit: lmerTest::lmer(formula = Pcv ~ dose * Drug + (1 | Region/Drug), 
-#>     data = ex125, REML = TRUE, control = lmerControl(), start = NULL, 
-#>     verbose = 0L, contrasts = list(dose = "contr.SAS", Drug = "contr.SAS"), 
-#>     devFunOnly = FALSE)
-#> 
-#> Linear Hypotheses:
-#>         Estimate Std. Error z value Pr(>|z|)    
-#> C1 == 0  19.3083     1.0477  18.429  < 1e-07 ***
-#> C2 == 0  -5.5583     0.6917  -8.036  < 1e-07 ***
-#> C3 == 0  21.4833     1.1280  19.046  < 1e-07 ***
-#> C4 == 0   4.3500     0.8359   5.204 7.21e-07 ***
-#> ---
-#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-#> (Adjusted p values reported -- single-step method)
-#> 
+#> Sources: Duchateau, Janssen and Rowlands (1998); Searle, Casella and McCulloch
+#> (1992); Satterthwaite (1946). Full references: vlm_cite(x).
 ```

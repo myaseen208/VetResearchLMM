@@ -110,3 +110,19 @@ test_that("included datasets keep expected field classes", {
     expect_equal(observed_classes, expected_classes[[dataset_name]])
   }
 })
+
+test_that("the data sets added in version 2.0.0 have the shape of Appendix A", {
+  expect_equal(dim(ex122), c(30L, 3L))
+  expect_named(ex122, c("herd", "dose", "PCVdif"))
+  expect_equal(dim(ex123), c(28L, 3L))
+  expect_named(ex123, c("herd", "drug", "PCVdif"))
+  expect_equal(dim(ex126), c(88L, 4L))
+  expect_named(ex126, c("time", "replicat", "anim_id", "OD"))
+  expect_equal(sum(ex122$PCVdif), 146.5, tolerance = 1e-10)
+})
+
+test_that("ex33 has 14 distinct days per animal after the corrections of version 2.0.0", {
+  days <- tapply(ex33$time, ex33$animal_id, function(t) length(unique(t)))
+  expect_true(all(days == 14L))
+  expect_false(any(grepl(" ", levels(ex33$animal_id))))
+})

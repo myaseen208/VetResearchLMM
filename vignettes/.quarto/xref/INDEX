@@ -1,14 +1,20 @@
 {
-  "vetresearchlmm-examples.qmd": {
-    "vetresearchlmm-examples.html": "d136959f"
+  "VetResearchLMM_01_getting_started.qmd": {
+    "VetResearchLMM_01_getting_started.html": "ce70596b"
   },
-  "vetresearchlmm-introduction.qmd": {
-    "vetresearchlmm-introduction.html": "dbfc6ca1"
+  "VetResearchLMM_02_theory.qmd": {
+    "VetResearchLMM_02_theory.html": "ca6b0a5c"
   },
-  "vetresearchlmm-methodology.qmd": {
-    "vetresearchlmm-methodology.html": "06d67e72"
+  "VetResearchLMM_03_book_chapters_1_2.qmd": {
+    "VetResearchLMM_03_book_chapters_1_2.html": "fc27c328"
   },
-  "vetresearchlmm-plotting.qmd": {
-    "vetresearchlmm-plotting.html": "e5c9ec39"
+  "VetResearchLMM_04_book_chapter_3.qmd": {
+    "VetResearchLMM_04_book_chapter_3.html": "e7954afe"
+  },
+  "VetResearchLMM_05_validation.qmd": {
+    "VetResearchLMM_05_validation.html": "a67c169a"
+  },
+  "VetResearchLMM_06_app.qmd": {
+    "VetResearchLMM_06_app.html": "b5d283a0"
   }
 }

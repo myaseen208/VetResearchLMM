@@ -1,0 +1,149 @@
+---
+title: "VetResearchLMM: Linear Mixed Models with Applications in Veterinary Research"
+format:
+  gfm:
+    # no ".png" appended to the badge URLs (a badge such as .../grand-total/<pkg>.png would show "null")
+    default-image-extension: ""
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = FALSE, comment = "", fig.path = "man/figures/README-", dpi = 110)
+```
+
+```{r badges, include = FALSE}
+# badges computed from DESCRIPTION, so that they never go stale
+desc  <- read.dcf(file = "DESCRIPTION", fields = c("Version", "Depends", "License"))
+r_min <- sub(pattern = ".*R \\(>= *([0-9.]+)\\).*", replacement = "\\1", x = desc[, "Depends"])
+enc   <- function(x) {
+  x <- gsub(pattern = "-", replacement = "--", x = x, fixed = TRUE)
+  for (p in list(
+      c(" ", "%20")
+    , c("(", "%28")
+    , c(")", "%29")
+    , c(">", "%3E")
+    , c("=", "%3D")
+    , c("+", "%2B")
+    , c("|", "%7C")
+    )) {
+    x <- gsub(pattern = p[1L], replacement = p[2L], x = x, fixed = TRUE)
+  }
+  x
+}
+lic   <- sub(pattern = " \\+ file LICENSE$", replacement = "", x = desc[, "License"])
+lic_url <- if (grepl(pattern = "^MIT", x = lic)) "https://opensource.org/licenses/MIT" else if (grepl(
+    pattern = "|"
+  , x       = lic
+  , fixed   = TRUE
+  ))
+  "https://www.gnu.org/licenses/licenses.html" else if (grepl(pattern = "GPL-3", x = lic))
+  "https://www.gnu.org/licenses/gpl-3.0.html" else "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
+```
+
+[![CRAN release](https://www.r-pkg.org/badges/version-last-release/VetResearchLMM)](https://CRAN.R-project.org/package=VetResearchLMM)
+[![CRAN checks](https://badges.cranchecks.info/worst/VetResearchLMM.svg)](https://cran.r-project.org/web/checks/check_results_VetResearchLMM.html)
+[![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/VetResearchLMM?color=green)](https://CRAN.R-project.org/package=VetResearchLMM)
+[![Monthly downloads](https://cranlogs.r-pkg.org/badges/last-month/VetResearchLMM?color=green)](https://CRAN.R-project.org/package=VetResearchLMM)
+[![r-universe](https://myaseen208.r-universe.dev/badges/VetResearchLMM)](https://myaseen208.r-universe.dev/VetResearchLMM)
+[![R-CMD-check](https://github.com/myaseen208/VetResearchLMM/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/myaseen208/VetResearchLMM/actions/workflows/R-CMD-check.yml)
+[![Development version](https://img.shields.io/badge/devel%20version-`r enc(desc[, "Version"])`-orange.svg)](https://github.com/myaseen208/VetResearchLMM)
+[![Minimal R version](https://img.shields.io/badge/R%3E%3D-`r r_min`-6666ff.svg)](https://cran.r-project.org/)
+[![Dependencies](https://tinyverse.netlify.app/badge/VetResearchLMM)](https://CRAN.R-project.org/package=VetResearchLMM)
+[![License](https://img.shields.io/badge/License-`r enc(lic)`-blue.svg)](`r lic_url`)
+[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Last commit](https://img.shields.io/github/last-commit/myaseen208/VetResearchLMM)](https://github.com/myaseen208/VetResearchLMM/commits)
+
+## Overview
+
+**VetResearchLMM** gives the data sets and every analysis of Duchateau, Janssen and Rowlands (1998), *Linear Mixed
+Models. An Introduction with Applications in Veterinary Research* (ILRI, Nairobi), with its own engine for linear
+mixed models that gives the results the book prints from SAS PROC MIXED and PROC GLM.
+
+* `vlm_fit()`: REML, ML or Type 3 (moment) estimation; random variance components, random coefficients
+  (`vlm_random()`, VC or UN) and residual structures (`vlm_repeated()`: CS, AR(1), SP(POW), UN); the fixed-effects
+  solution in the overparameterised coding; Type 3 or Type 1 tests with containment, residual, between-within,
+  Satterthwaite or Kenward-Roger degrees of freedom; fit statistics;
+* `vlm_lsmeans()`, `vlm_estimate()`, `vlm_contrast()`: least-squares means with Tukey, Bonferroni or Sidak
+  comparisons, estimates in the broad and narrow inference spaces, and F tests of contrasts;
+* `vlm_blup()`: best linear unbiased predictions of random effects;
+* `vlm_ems()`: the analysis of variance with expected mean squares and synthesised F tests;
+* `vlm_compare()`: information criteria and likelihood ratio tests of covariance structures;
+* `vlm_interpret()`, `vlm_cite()`, `vlm_app()`: plain-language interpretation, references and a shiny application
+  in which every example of the book loads with one click.
+
+The help pages `?Examp1.3.2` to `?Examp3.3` give the SAS program of each example with the same analysis in R. The
+package reproduces 115 of the 116 numbers of the book that it checks; the other one is printed truncated (3.685
+for 3.6855). Version 2.0.0 keeps the data sets, the help topics and `emmeans_mixed_model()` and
+`report_mixed_model()` of version 1.1.0, adds the data sets of Examples 1.2.2, 1.2.3 and 1.2.6, and corrects three
+typing errors in `ex33`.
+
+## Installation
+
+```r
+install.packages("VetResearchLMM")
+# development version
+# install.packages("remotes")
+remotes::install_github("myaseen208/VetResearchLMM")
+```
+
+## Quick start
+
+The split-plot experiment of Example 1.2.5 (drugs given to herds within regions, doses to animals within herds):
+
+```{r quick}
+library(VetResearchLMM)
+fm <-
+  vlm_fit(
+      fixed    = Pcv ~ Drug + dose + Drug:dose
+    , data     = ex125
+    , random   = ~ Region + Region:Drug
+    , repeated = NULL
+    , method   = c("REML", "ML", "Type3")
+    , ddfm     = "satterth"
+    , type     = 3
+    , class    = NULL
+    , bound    = TRUE
+    , control  = list()
+    )
+fm
+vlm_interpret(
+    x     = fm
+  , alpha = 0.05
+  , top   = 3L
+  )
+```
+
+```{r quick-plot, fig.height = 4}
+lm1 <-
+  vlm_lsmeans(
+      fit    = fm
+    , specs  = ~ Drug:dose
+    , at     = NULL
+    , diff   = TRUE
+    , adjust = "tukey"
+    , level  = 0.95
+    )
+plot(x = lm1)
+```
+
+## Learn more
+
+* Vignettes: `browseVignettes("VetResearchLMM")`, starting with `VetResearchLMM_01_getting_started`; PDF versions
+  on the site.
+* Site: <https://myaseen208.com/VetResearchLMM/>
+* Notation: `vlm_notation()`
+* References of the methods behind a result: `vlm_cite()`
+
+## Citation
+
+```{r citation, echo = FALSE, comment = ""}
+print(citation(package = "VetResearchLMM")[1L], style = "text")
+```
+
+BibTeX:
+
+```{r citation-bib, echo = FALSE, comment = ""}
+print(citation(package = "VetResearchLMM")[1L], style = "bibtex")
+```
+
+Please also cite the book: `citation("VetResearchLMM")` lists it with the package, and `vlm_cite(x)` gives the
+references of a single result.

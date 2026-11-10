@@ -1,0 +1,39 @@
+# The version and year follow the installed package (from DESCRIPTION).
+ver  <- if (!is.null(meta$Version)) meta$Version else utils::packageVersion("VetResearchLMM")
+date <- if (!is.null(meta$Date)) meta$Date else if (!is.null(meta$`Date/Publication`)) meta$`Date/Publication` else
+  as.character(Sys.Date())
+year <- substr(date, 1L, 4L)
+note <- sprintf("R package version %s", ver)
+bibentry(
+    bibtype     = "Manual"
+  , key         = "VetResearchLMM"
+  , header      = "To cite VetResearchLMM in publications use:"
+  , title       = "{VetResearchLMM}: Linear Mixed Models: An Introduction with Applications in Veterinary Research"
+  , author      = c(
+        person("Muhammad", "Yaseen", email = "myaseen208@gmail.com", comment = c(ORCID = "0000-0002-5923-1714"))
+      , person("Luc", "Duchateau")
+      , person("Paul", "Janssen")
+      , person("John", "Rowlands")
+      )
+  , year        = year
+  , note        = note
+  , url         = "https://CRAN.R-project.org/package=VetResearchLMM"
+  , textVersion = sprintf(paste("Yaseen, M., Duchateau, L., Janssen, P. and Rowlands, J. (%s). VetResearchLMM: Linear Mixed Models: An Introduction with Applications in Veterinary Research. %s.",
+                                "https://CRAN.R-project.org/package=VetResearchLMM"), year, note)
+  )
+bibentry(
+    bibtype     = "Book"
+  , key         = "Duchateau1998"
+  , header      = "and for the methods (vlm_cite() gives the references of a single analysis):"
+  , title       = "Linear Mixed Models. An Introduction with Applications in Veterinary Research"
+  , author      = c(person(c("Luc"), "Duchateau"),
+                  person(c("Paul"), "Janssen"),
+                  person(c("G.", "John"), "Rowlands"))
+  , publisher   = "International Livestock Research Institute"
+  , address     = "Nairobi"
+  , year        = "1998"
+  , isbn        = "92-9146-038-9"
+  , textVersion = paste("Duchateau, L., Janssen, P. and Rowlands, G. J. (1998). Linear Mixed Models. An",
+                      "Introduction with Applications in Veterinary Research. International Livestock Research",
+                      "Institute, Nairobi. ISBN 92-9146-038-9.")
+  )

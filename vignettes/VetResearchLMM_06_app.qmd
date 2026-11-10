@@ -1,0 +1,98 @@
+---
+title: "The VetResearchLMM application"
+author: "Muhammad Yaseen"
+date: last-modified
+format:
+  html:
+    self-contained: true
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    highlight-style: pygments
+    code-tools: true
+    html-math-method: mathjax
+vignette: >
+  %\VignetteIndexEntry{The VetResearchLMM application}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+{{< include _VetResearchLMM-macros.txt >}}
+
+```{r setup, include = FALSE}
+# HTML figures are drawn as PNG and kept as WebP: lossless, or lossy at quality 90 when that is less than half the
+# size. The PDF figures stay vector graphics. Any failure of magick (not installed, no WebP, or a broken
+# installation whose system libraries are missing) keeps the PNG
+webp <- function(path) {
+  if (knitr::is_latex_output() || !grepl(pattern = "[.]png$", x = path)) return(path)
+  tryCatch(
+      {
+        if (!requireNamespace("magick", quietly = TRUE) || !isTRUE(magick::magick_config()$webp)) return(path)
+        img <- magick::image_read(path)
+        out <- sub(pattern = "[.]png$", replacement = ".webp", x = path)
+        tmp <- tempfile(fileext = ".webp")
+        magick::image_write(
+            image   = img
+          , path    = out
+          , format  = "webp"
+          , quality = 100
+          , defines = c(`webp:lossless` = "true")
+          )
+        magick::image_write(image = img, path = tmp, format = "webp", quality = 90)
+        if (file.size(tmp) < file.size(out) / 2) file.copy(from = tmp, to = out, overwrite = TRUE)
+        unlink(c(path, tmp))
+        out
+      }
+    , error = function(e) path
+    )
+}
+knitr::opts_chunk$set(collapse = FALSE, comment = "", fig.width = 7, fig.height = 4.2,
+                      dev = if (knitr::is_latex_output()) "cairo_pdf" else "ragg_png", dpi = 96,
+                      fig.process = webp)
+if (requireNamespace("VetResearchLMM", quietly = TRUE)) library(VetResearchLMM) else
+  pkgload::load_all(export_all = FALSE, helpers = FALSE, quiet = TRUE)
+```
+
+
+# Abstract
+
+`vlm_app()` opens a point-and-click application in the web browser. It needs the packages **shiny**, **bslib** and
+**DT**. Every example of the book loads with one click, and every result comes with a plain-language
+interpretation, the printed output, tables to copy or download, plots and the R code that repeats the analysis.
+
+```{r, eval = FALSE}
+vlm_app(
+    launch.browser = TRUE
+  )
+```
+
+# Pages
+
+* **Data**: the ten data sets of the book or a CSV file.
+* **Model**: fixed effects, random variance components, random coefficients per subject, a residual structure,
+  estimation method, denominator degrees of freedom and test type. *Load an example of the book* fills every field
+  for one of the 17 analyses of the book.
+* **Means**: least-squares means and their differences with Tukey, Bonferroni or Sidak adjustment.
+* **Estimates**: estimates and contrasts typed as in SAS, one per line, for example
+  `Samorin mean: intercept 1 Drug 0 1 dose 0.5 0.5 Drug:dose 0 0 0.5 0.5`.
+* **Random effects**: best linear unbiased predictions.
+* **Expected mean squares**: the analysis of variance of PROC GLM with a RANDOM statement.
+* **Compare**: independent, compound symmetry, AR(1) and random coefficient structures for the fixed effects of the
+  Model page.
+
+```{r fig-model, echo = FALSE, fig.cap = "The Model page with Example 3.3, Model 3."}
+knitr::include_graphics(path = if (knitr::is_latex_output()) "figures/app-model.jpg" else "figures/app-model.webp")
+```
+
+```{r fig-means, echo = FALSE, fig.cap = "The Means page with Tukey-Kramer comparisons."}
+knitr::include_graphics(path = if (knitr::is_latex_output()) "figures/app-means.jpg" else "figures/app-means.webp")
+```
+
+# Deployment
+
+`vlm_app_object()` returns the application object, for example for a file `app.R` on a server:
+`library(VetResearchLMM); vlm_app_object()`.

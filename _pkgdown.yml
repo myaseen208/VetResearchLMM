@@ -1,68 +1,95 @@
 url: https://myaseen208.com/VetResearchLMM/
+title: Linear Mixed Models with Applications in Veterinary Research
 
 template:
   bootstrap: 5
+  bootswatch: flatly
   math-rendering: mathjax
   bslib:
     base_font:
-      google: Libertinus Serif
+      google: Crimson Pro
     heading_font:
-      google: Libertinus Serif
+      google: Crimson Pro
     code_font:
       google: JetBrains Mono
+    bg: "#ffffff"
+    fg: "#1a1a1a"
+    primary: "#2c5f8a"
+    link-color: "#2c5f8a"
+
+home:
+  sidebar:
+    structure: [links, license, citation, authors, dev]
 
 navbar:
   structure:
-    left: [home, reference, articles, news]
-
-  right:
-    - icon: fa-github
-      href: https://github.com/myaseen208/VetResearchLMM
-      aria-label: GitHub repository
-
-    - text: CRAN
-      icon: fa-download
-      href: https://cran.r-project.org/package=VetResearchLMM
-      aria-label: CRAN
-
-    - text: ResearchGate
-      icon: fa-graduation-cap
-      href: https://www.researchgate.net/profile/Muhammad_Yaseen10
-      aria-label: ResearchGate
-
-    - text: Twitter
-      icon: fa-twitter
-      href: https://twitter.com/myaseen208
-      aria-label: Twitter
-
-reference:
-  - title: Core Methods
-    contents:
-      - VetResearchLMM-package
-  - title: Interpretation
-    contents:
-      - report_mixed_model
-  - title: Post Hoc Inference
-    contents:
-      - emmeans_mixed_model
-  - title: Example Data
-    contents:
-      - ex121
-      - ex124
-      - ex125
-      - ex127
-      - ex31
-      - ex32
-      - ex33
-  - title: Example Workflows
-    contents:
-      - starts_with("Examp")
+    left:  [home, reference, articles, pdf, news]
+    right: [search, github]
+  components:
+    pdf:
+      text: PDF
+      href: pdf/index.html
 
 articles:
-  - title: Articles
-    navbar: ~
+  - title: Getting started
+    navbar: Getting started
     contents:
-      - vetresearchlmm-introduction
-      - vetresearchlmm-methodology
-      - vetresearchlmm-examples
-      - vetresearchlmm-plotting
+      - VetResearchLMM_01_getting_started
+      - VetResearchLMM_02_theory
+  - title: The book
+    navbar: The book
+    contents:
+      - VetResearchLMM_03_book_chapters_1_2
+      - VetResearchLMM_04_book_chapter_3
+      - VetResearchLMM_05_validation
+  - title: Application
+    navbar: Application
+    contents:
+      - VetResearchLMM_06_app
+
+reference:
+  # every help page must appear (tools/check-pkgdown-index.R)
+  - title: Models
+    contents:
+      - vlm_fit
+      - vlm_random
+      - vlm_ems
+      - vlm_compare
+  - title: Inference
+    contents:
+      - vlm_lsmeans
+      - vlm_estimate
+      - vlm_blup
+  - title: The examples of the book
+    contents:
+      - starts_with("Examp")
+  - title: Data sets of the book
+    contents:
+      - starts_with("ex1")
+      - starts_with("ex3")
+  - title: Results, plots and interpretation
+    contents:
+      - vlm-methods
+      - autoplot.vlm_result
+      - vlm_interpret
+  - title: Application
+    contents:
+      - vlm_app
+  - title: Version 1.1.0
+    desc: Kept, and extended to vlm_fit() results.
+    contents:
+      - emmeans_mixed_model
+      - report_mixed_model
+  - title: Utilities
+    contents:
+      - vlm_cite
+      - vlm_theme
+      - vlm_save
+      - vlm_notation
+      - vlm_reference
+      - VetResearchLMM-package
+
+footer:
+  structure:
+    left: developed_by
+    right: built_with

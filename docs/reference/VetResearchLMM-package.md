@@ -1,118 +1,84 @@
-# VetResearchLMM: Linear Mixed Models for Veterinary Research Examples
+# VetResearchLMM: Linear Mixed Models with Applications in Veterinary Research
 
-The VetResearchLMM package provides the datasets and reproducible R
-examples that accompany Duchateau, Janssen, and Rowlands (1998), *Linear
-Mixed Models: An Introduction with Applications in Veterinary Research*.
-The package is intended for readers who want to reproduce, inspect, and
-adapt the linear mixed model examples from the book using current R
-tooling.
+The VetResearchLMM package gives the data sets and every analysis of
+Duchateau, Janssen and Rowlands (1998), *Linear Mixed Models. An
+Introduction with Applications in Veterinary Research*, with its own
+engine for linear mixed models. The engine gives the results that the
+book prints from SAS PROC MIXED and PROC GLM, and extends them.
 
-## Details
+## Functions
 
-The package focuses on small applied veterinary research examples
-involving fixed effects, random effects, variance components, nested
-designs, repeated measurements, and basic hypothesis tests for linear
-mixed models. The package also includes
-[`report_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/report_mixed_model.md)
-and
-[`emmeans_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/emmeans_mixed_model.md),
-small helpers that delegate fitted model interpretation and post hoc
-marginal-mean inference to the optional report and emmeans packages when
-they are installed. The main user-facing data objects are the book
-datasets:
+- [`vlm_fit()`](https://myaseen208.com/VetResearchLMM/reference/vlm_fit.md):
 
-- [`ex121`](https://myaseen208.com/VetResearchLMM/reference/ex121.md):
+  fits a linear mixed model by REML, ML or Type 3 moments: covariance
+  parameters, fixed-effects solution, Type 3 or Type 1 tests and fit
+  statistics.
 
-  Dose comparison data for packed cell volume.
+- [`vlm_random()`](https://myaseen208.com/VetResearchLMM/reference/vlm_random.md),
+  [`vlm_repeated()`](https://myaseen208.com/VetResearchLMM/reference/vlm_random.md):
 
-- [`ex124`](https://myaseen208.com/VetResearchLMM/reference/ex124.md):
+  random coefficients (VC or UN) and residual structures (CS, AR(1),
+  SP(POW), UN).
 
-  Herd, drug, and dose packed cell volume data.
+- [`vlm_lsmeans()`](https://myaseen208.com/VetResearchLMM/reference/vlm_lsmeans.md),
+  [`vlm_estimate()`](https://myaseen208.com/VetResearchLMM/reference/vlm_estimate.md),
+  [`vlm_contrast()`](https://myaseen208.com/VetResearchLMM/reference/vlm_estimate.md):
 
-- [`ex125`](https://myaseen208.com/VetResearchLMM/reference/ex125.md):
+  least-squares means, estimates in the broad and narrow inference
+  spaces, and contrasts.
 
-  Region, drug, and dose split-plot data.
+- [`vlm_blup()`](https://myaseen208.com/VetResearchLMM/reference/vlm_blup.md):
 
-- [`ex127`](https://myaseen208.com/VetResearchLMM/reference/ex127.md):
+  best linear unbiased predictions of the random effects.
 
-  Sire-level weaning weight data.
+- [`vlm_ems()`](https://myaseen208.com/VetResearchLMM/reference/vlm_ems.md):
 
-- [`ex31`](https://myaseen208.com/VetResearchLMM/reference/ex31.md):
+  analysis of variance with expected mean squares and synthesised F
+  tests.
 
-  Designed experiment data for PCV response.
+- [`vlm_compare()`](https://myaseen208.com/VetResearchLMM/reference/vlm_compare.md):
 
-- [`ex32`](https://myaseen208.com/VetResearchLMM/reference/ex32.md):
+  information criteria and likelihood ratio tests of several fits.
 
-  Breed, sire, sex, age, and weaning weight data.
+- [`vlm_interpret()`](https://myaseen208.com/VetResearchLMM/reference/vlm_interpret.md),
+  [`vlm_cite()`](https://myaseen208.com/VetResearchLMM/reference/vlm_cite.md),
+  [`vlm_app()`](https://myaseen208.com/VetResearchLMM/reference/vlm_app.md):
 
-- [`ex33`](https://myaseen208.com/VetResearchLMM/reference/ex33.md):
+  plain-language interpretation, references and a shiny application.
 
-  Longitudinal PCV data by animal and breed.
+- [`emmeans_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/emmeans_mixed_model.md),
+  [`report_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/report_mixed_model.md):
 
-The example help pages reproduce the corresponding analyses with modern
-R packages such as lme4, lmerTest, nlme, multcomp, collapse, ggplot2,
-and emmeans where those packages are available. Numerical results can
-differ slightly from the book because the book reports SAS output and
-modern R packages use their own optimizers, parameterizations, and
-degrees-of-freedom methods.
+  the helpers of version 1.1.0, now also for `vlm_fit` results.
 
-A typical workflow is:
-
-1.  Load one of the included datasets with
-    [`data()`](https://rdrr.io/r/utils/data.html).
-
-2.  Inspect the matching example help page, such as
-    [`?Examp2.4.2.2`](https://myaseen208.com/VetResearchLMM/reference/Examp2.4.2.2.md).
-
-3.  Fit the fixed effect or mixed model shown in the example.
-
-4.  Compare estimates, variance components, and tests with the book.
-
-5.  Use
-    [`report_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/report_mixed_model.md)
-    for an optional narrative model report when report is installed.
-
-6.  Use
-    [`emmeans_mixed_model()`](https://myaseen208.com/VetResearchLMM/reference/emmeans_mixed_model.md)
-    for optional estimated marginal means and post hoc comparisons when
-    emmeans is installed.
-
-7.  Use the package vignettes for chapter-level narrative examples.
-
-## Affiliation
-
-School of Mathematical and Statistical Sciences, Clemson University,
-Clemson, South Carolina, USA.
-
-## Vignettes
-
-The Quarto vignettes provide an introduction, methodology overview,
-chapter/example walkthrough, and plotting guide:
-
-- `vetresearchlmm-introduction`
-
-- `vetresearchlmm-methodology`
-
-- `vetresearchlmm-examples`
-
-- `vetresearchlmm-plotting`
+The help pages
+[`Examp1.3.2`](https://myaseen208.com/VetResearchLMM/reference/Examp1.3.2.md)
+to
+[`Examp3.3`](https://myaseen208.com/VetResearchLMM/reference/Examp3.3.md)
+give the code of every example of the book, and the data sets are
+[`ex121`](https://myaseen208.com/VetResearchLMM/reference/ex121.md) to
+[`ex127`](https://myaseen208.com/VetResearchLMM/reference/ex127.md),
+[`ex31`](https://myaseen208.com/VetResearchLMM/reference/ex31.md),
+[`ex32`](https://myaseen208.com/VetResearchLMM/reference/ex32.md) and
+[`ex33`](https://myaseen208.com/VetResearchLMM/reference/ex33.md).
 
 ## References
 
-Duchateau, L., Janssen, P., and Rowlands, G. J. (1998). *Linear Mixed
-Models: An Introduction with Applications in Veterinary Research*.
-International Livestock Research Institute.
+Duchateau, L., Janssen, P. and Rowlands, G. J. (1998). *Linear Mixed
+Models. An Introduction with Applications in Veterinary Research*.
+International Livestock Research Institute, Nairobi.
 
 ## See also
 
 Useful links:
 
-- <https://myaseen208.com/VetResearchLMM>
+- <https://myaseen208.com/VetResearchLMM/>
 
-- <https://github.com/myaseen208/VetResearchLMM/>
+- <https://github.com/myaseen208/VetResearchLMM>
 
 - Report bugs at <https://github.com/myaseen208/VetResearchLMM/issues>
 
 ## Author
 
-Muhammad Yaseen <myaseen208@gmail.com>
+Muhammad Yaseen (<myaseen208@gmail.com>); the book and its data: Luc
+Duchateau, Paul Janssen and John Rowlands.

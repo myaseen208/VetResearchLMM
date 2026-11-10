@@ -1,12 +1,14 @@
-pandoc: 3.8.3
-pkgdown: 2.2.0
+pandoc: '3.10'
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
-  vetresearchlmm-examples: vetresearchlmm-examples.html
-  vetresearchlmm-introduction: vetresearchlmm-introduction.html
-  vetresearchlmm-methodology: vetresearchlmm-methodology.html
-  vetresearchlmm-plotting: vetresearchlmm-plotting.html
-last_built: 2026-05-05T05:01Z
+  VetResearchLMM_01_getting_started: VetResearchLMM_01_getting_started.html
+  VetResearchLMM_02_theory: VetResearchLMM_02_theory.html
+  VetResearchLMM_03_book_chapters_1_2: VetResearchLMM_03_book_chapters_1_2.html
+  VetResearchLMM_04_book_chapter_3: VetResearchLMM_04_book_chapter_3.html
+  VetResearchLMM_05_validation: VetResearchLMM_05_validation.html
+  VetResearchLMM_06_app: VetResearchLMM_06_app.html
+last_built: 2026-11-10T19:35Z
 urls:
   reference: https://myaseen208.com/VetResearchLMM/reference
   article: https://myaseen208.com/VetResearchLMM/articles
